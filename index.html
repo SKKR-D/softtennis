@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>県中総体団体戦決勝リーグ 監督ポータル</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Design Tokens — 青系カラー
+   ============================================================ */
+:root {
+  --c-bg:       #eef3f8;
+  --c-surface:  #ffffff;
+  --c-surface2: #e2eaf2;
+  --c-accent:   #0d4d8c;
+  --c-accent-light: #e3edf7;
+  --c-accent2:  #1976d2;
+  --c-accent2-light: #e8f0fc;
+  --c-danger:   #d32f2f;
+  --c-warn:     #f57c00;
+  --c-warn-light: #fff4e5;
+  --c-text:     #1a1a1a;
+  --c-text2:    #5f6b7a;
+  --c-border:   #c4d2e0;
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --shadow: 0 2px 8px rgba(13,77,140,.10);
+  --shadow-md: 0 4px 16px rgba(13,77,140,.15);
+  --font-ja: 'Noto Sans JP', sans-serif;
+  --font-en: 'Inter', sans-serif;
+}
+
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: var(--font-ja);
+  background: var(--c-bg);
+  color: var(--c-text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   Screen System
+   ============================================================ */
+.screen { display: none; padding: 20px 16px 100px; max-width: 480px; margin: 0 auto; }
+.screen.active { display: block; animation: fadeUp .3s ease-out; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   Header / Top Bar
+   ============================================================ */
+.top-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--c-border);
+  padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+}
+.top-bar .back-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--c-surface2); border: none; color: var(--c-text);
+  font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.top-bar .back-btn:active { background: var(--c-accent); color: #fff; }
+.top-bar h1 { font-size: 15px; font-weight: 700; flex: 1; }
+.top-bar .team-badge {
+  font-size: 11px; background: var(--c-accent); color: #fff;
+  padding: 3px 10px; border-radius: 20px; font-weight: 700;
+  max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ============================================================
+   Login Screen
+   ============================================================ */
+.login-logo {
+  text-align: center; padding: 40px 0 24px;
+}
+.login-logo .icon {
+  width: 72px; height: 72px; border-radius: var(--r-lg);
+  background: linear-gradient(135deg, var(--c-accent), var(--c-accent2));
+  margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;
+  font-size: 36px; color: #fff; box-shadow: 0 6px 20px rgba(13,77,140,.30);
+}
+.login-logo h2 { font-size: 18px; font-weight: 900; letter-spacing: -.3px; line-height: 1.4; }
+.login-logo .subtitle { font-size: 14px; font-weight: 700; color: var(--c-accent); margin-top: 4px; }
+.login-logo p  { font-size: 13px; color: var(--c-text2); margin-top: 10px; }
+
+.login-form { margin-top: 24px; }
+.input-group { position: relative; margin-bottom: 16px; }
+.input-group input {
+  width: 100%; padding: 16px; font-size: 22px; text-align: center;
+  letter-spacing: 10px; font-weight: 700; font-family: var(--font-en);
+  background: var(--c-surface); border: 2px solid var(--c-border);
+  border-radius: var(--r-md); color: var(--c-text); outline: none;
+  transition: border-color .2s;
+}
+.input-group input:focus { border-color: var(--c-accent); }
+.input-group input::placeholder { letter-spacing: 2px; font-size: 14px; color: var(--c-text2); font-weight: 400; }
+
+.btn {
+  display: block; width: 100%; padding: 16px; border: none; border-radius: var(--r-md);
+  font-size: 16px; font-weight: 700; cursor: pointer; transition: all .15s;
+  font-family: var(--font-ja);
+}
+.btn:active { transform: scale(.97); }
+.btn-primary {
+  background: var(--c-accent); color: #fff;
+  box-shadow: 0 4px 12px rgba(13,77,140,.30);
+}
+.btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+.btn-secondary {
+  background: var(--c-surface); color: var(--c-text);
+  border: 1px solid var(--c-border);
+}
+.btn-arrival {
+  background: var(--c-accent2); color: #fff;
+  box-shadow: 0 4px 12px rgba(25,118,210,.30);
+  font-size: 18px; padding: 20px;
+}
+
+.error-msg {
+  text-align: center; color: var(--c-danger); font-size: 13px;
+  margin-top: 8px; min-height: 20px;
+}
+
+/* ============================================================
+   受付確認画面
+   ============================================================ */
+.section-group { margin-bottom: 28px; }
+.section-title {
+  font-size: 13px; font-weight: 700; color: var(--c-text2);
+  margin-bottom: 10px; padding-left: 4px;
+  display: flex; align-items: center; gap: 6px;
+}
+.section-title .count {
+  background: var(--c-surface2); color: var(--c-text2);
+  font-size: 11px; padding: 1px 8px; border-radius: 10px;
+}
+
+.task-card {
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: var(--r-md); padding: 14px 16px; margin-bottom: 8px;
+  cursor: pointer; transition: all .15s; position: relative; overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.task-card:active { background: var(--c-surface2); }
+.task-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+}
+.task-card.pending::before { background: var(--c-warn); }
+.task-card.done::before { background: var(--c-accent); }
+.task-card.ordered::before { background: var(--c-accent2); }
+
+.task-card .match-id {
+  font-family: var(--font-en); font-size: 11px; font-weight: 600;
+  color: var(--c-accent); margin-bottom: 2px;
+}
+.task-card .round-label {
+  font-size: 12px; color: var(--c-text2); margin-bottom: 4px;
+}
+.task-card .court-label {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  background: var(--c-accent2-light); color: var(--c-accent2);
+  padding: 2px 8px; border-radius: 10px; margin-left: 6px;
+}
+.task-card .matchup {
+  font-size: 15px; font-weight: 700; line-height: 1.4;
+}
+.task-card .matchup .vs {
+  color: var(--c-text2); font-size: 12px; margin: 0 6px; font-weight: 500;
+}
+.task-card .time-info {
+  font-size: 11px; color: var(--c-text2); margin-top: 4px;
+}
+.task-card .time-info .label {
+  display: inline-block; background: var(--c-surface2); padding: 1px 6px;
+  border-radius: 4px; margin-right: 4px;
+}
+
+.task-card .status-pill {
+  position: absolute; top: 12px; right: 12px;
+  font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 10px;
+}
+.status-pill.pending { background: var(--c-warn-light); color: var(--c-warn); }
+.status-pill.done { background: var(--c-accent-light); color: var(--c-accent); }
+.status-pill.ordered { background: var(--c-accent2-light); color: var(--c-accent2); }
+
+.task-card .arrow-icon {
+  position: absolute; right: 14px; bottom: 12px;
+  font-size: 18px; color: var(--c-text2);
+}
+
+.empty-state {
+  text-align: center; padding: 48px 20px; color: var(--c-text2);
+}
+.empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+
+/* ============================================================
+   Arrival Screen
+   ============================================================ */
+.arrival-info { text-align: center; padding: 40px 0 28px; }
+.arrival-info .big-icon { font-size: 56px; margin-bottom: 16px; }
+.arrival-info h2 { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
+.arrival-info p { font-size: 14px; color: var(--c-text2); line-height: 1.6; }
+
+.arrival-detail {
+  background: var(--c-surface); border-radius: var(--r-md); border: 1px solid var(--c-border);
+  padding: 16px; margin-bottom: 24px; box-shadow: var(--shadow);
+}
+.arrival-detail .row {
+  display: flex; justify-content: space-between; padding: 8px 0;
+  border-bottom: 1px solid var(--c-border); font-size: 14px;
+}
+.arrival-detail .row:last-child { border-bottom: none; }
+.arrival-detail .row .label { color: var(--c-text2); }
+.arrival-detail .row .value { font-weight: 700; }
+
+/* ============================================================
+   Order Screen
+   ============================================================ */
+.order-header {
+  background: var(--c-surface); border-radius: var(--r-md); border: 1px solid var(--c-border);
+  padding: 14px 16px; margin-bottom: 20px; box-shadow: var(--shadow);
+}
+.order-header .match-label { font-size: 12px; color: var(--c-text2); }
+.order-header .match-title { font-size: 17px; font-weight: 700; margin-top: 4px; }
+.order-header .court-tag {
+  display: inline-block; margin-left: 8px;
+  background: var(--c-accent2); color: #fff;
+  font-size: 12px; font-weight: 700;
+  padding: 2px 10px; border-radius: 10px;
+}
+
+.match-group {
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: var(--r-md); padding: 14px 16px; margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.match-group.open-match { opacity: .5; }
+.match-group-title {
+  font-size: 13px; font-weight: 700; color: var(--c-accent);
+  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.match-group-title .match-num {
+  background: var(--c-accent); color: #fff;
+  font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+}
+.slot-row { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
+.slot-label {
+  width: 28px; font-size: 13px; font-weight: 700; color: var(--c-text2);
+  text-align: center; flex-shrink: 0;
+}
+.slot-select {
+  flex: 1; padding: 10px 12px; font-size: 14px; font-weight: 500;
+  background: var(--c-surface); border: 2px solid var(--c-border);
+  border-radius: var(--r-sm); color: var(--c-text); outline: none;
+  font-family: var(--font-ja); appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235f6b7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+}
+.slot-select:focus { border-color: var(--c-accent); }
+.slot-select.filled { border-color: var(--c-accent); background-color: var(--c-accent-light); }
+.slot-select:disabled { opacity: .5; background-color: var(--c-surface2); cursor: not-allowed; }
+
+.open-toggle {
+  margin-left: auto; display: flex; align-items: center; gap: 6px;
+  cursor: pointer; font-size: 12px; font-weight: 600; color: var(--c-warn);
+}
+.open-toggle input[type="checkbox"] {
+  width: 16px; height: 16px; accent-color: var(--c-warn); cursor: pointer;
+}
+.open-toggle span { white-space: nowrap; }
+
+.roster-pool {
+  background: var(--c-surface); border-radius: var(--r-md); border: 1px solid var(--c-border);
+  padding: 14px 16px; margin-bottom: 20px; box-shadow: var(--shadow);
+}
+.roster-pool h4 { font-size: 13px; color: var(--c-text2); margin-bottom: 10px; font-weight: 700; }
+.roster-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.roster-tag {
+  font-size: 13px; padding: 6px 12px; border-radius: 20px;
+  background: var(--c-surface2); color: var(--c-text); font-weight: 500;
+  border: 1px solid var(--c-border); transition: all .15s;
+}
+.roster-tag.used { opacity: .35; text-decoration: line-through; background: var(--c-surface2); color: var(--c-text2); }
+
+/* ============================================================
+   Loading / Toast
+   ============================================================ */
+.spinner {
+  display: inline-block; width: 20px; height: 20px;
+  border: 3px solid rgba(0,0,0,.1); border-top-color: var(--c-accent);
+  border-radius: 50%; animation: spin .6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(238,243,248,.85); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+}
+.loading-overlay.show { display: flex; }
+.loading-overlay .spinner { width: 36px; height: 36px; border-width: 4px; }
+.loading-overlay p { font-size: 14px; color: var(--c-text2); }
+
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: var(--r-md); padding: 12px 20px; font-size: 14px; font-weight: 600;
+  box-shadow: var(--shadow-md); z-index: 9998; opacity: 0;
+  transition: all .3s ease; max-width: 90%;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.success { border-color: var(--c-accent); color: var(--c-accent); }
+.toast.error   { border-color: var(--c-danger); color: var(--c-danger); }
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+.mt-12 { margin-top: 12px; }
+.mt-20 { margin-top: 20px; }
+.text-center { text-align: center; }
+.text-sm { font-size: 13px; color: var(--c-text2); }
+</style>
+</head>
+<body>
+
+<!-- ========== Loading Overlay ========== -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <p id="loadingMsg">読み込み中...</p>
+</div>
+
+<!-- ========== Toast ========== -->
+<div class="toast" id="toast"></div>
+
+<!-- ============================================================
+     Screen 1: Login
+     ============================================================ -->
+<div class="screen active" id="screenLogin">
+  <div class="login-logo">
+    <div class="icon">🎾</div>
+    <h2>県中総体団体戦決勝リーグ</h2>
+    <div class="subtitle">監督ポータル</div>
+    <p>認証コードを入力してください</p>
+  </div>
+  <div class="login-form">
+    <div class="input-group">
+      <input type="text" id="loginCode" placeholder="認証コード" maxlength="10" inputmode="numeric" autocomplete="off">
+    </div>
+    <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">ログイン</button>
+    <div class="error-msg" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     Screen 2: 受付確認
+     ============================================================ -->
+<div class="screen" id="screenHome">
+  <div class="top-bar">
+    <h1>試合一覧</h1>
+    <span class="team-badge" id="homeTeamBadge"></span>
+  </div>
+  <div class="section-group mt-12" id="pendingSection">
+    <div class="section-title">🔶 受付前・オーダー未提出 <span class="count" id="pendingCount">0</span></div>
+    <div id="pendingList"></div>
+  </div>
+  <div class="section-group" id="doneSection">
+    <div class="section-title">✅ オーダー提出済み <span class="count" id="doneCount">0</span></div>
+    <div id="doneList"></div>
+  </div>
+  <button class="btn btn-secondary mt-20" onclick="doLogout()">ログアウト</button>
+  <p class="text-sm text-center mt-12" id="lastUpdated"></p>
+</div>
+
+<!-- ============================================================
+     Screen 3: Arrival
+     ============================================================ -->
+<div class="screen" id="screenArrival">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <h1>到着受付</h1>
+    <span class="team-badge" id="arrTeamBadge"></span>
+  </div>
+  <div class="arrival-info">
+    <div class="big-icon">📍</div>
+    <h2>到着受付</h2>
+    <p>本部に到着したことを報告します。<br>一度受付すると、以降の試合では自動スキップされます。</p>
+  </div>
+  <div class="arrival-detail" id="arrivalDetail"></div>
+  <button class="btn btn-arrival" id="arrivalBtn" onclick="submitArrival()">到着しました</button>
+</div>
+
+<!-- ============================================================
+     Screen 4: Order
+     ============================================================ -->
+<div class="screen" id="screenOrder">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <h1>オーダー提出</h1>
+    <span class="team-badge" id="ordTeamBadge"></span>
+  </div>
+  <div class="order-header" id="orderHeader"></div>
+
+  <div class="roster-pool" id="rosterPool">
+    <h4>📋 登録メンバー</h4>
+    <div class="roster-tags" id="rosterTags"></div>
+  </div>
+
+  <!-- 第1マッチ -->
+  <div class="match-group" id="matchGroup1">
+    <div class="match-group-title"><span class="match-num">1</span>第1マッチ</div>
+    <div class="slot-row"><div class="slot-label">A</div><select class="slot-select" id="slot_0" onchange="onSlotChange()"><option value="">-- 選手を選択 --</option></select></div>
+    <div class="slot-row"><div class="slot-label">B</div><select class="slot-select" id="slot_1" onchange="onSlotChange()"><option value="">-- 選手を選択 --</option></select></div>
+  </div>
+
+  <!-- 第2マッチ -->
+  <div class="match-group" id="matchGroup2">
+    <div class="match-group-title"><span class="match-num">2</span>第2マッチ</div>
+    <div class="slot-row"><div class="slot-label">A</div><select class="slot-select" id="slot_2" onchange="onSlotChange()"><option value="">-- 選手を選択 --</option></select></div>
+    <div class="slot-row"><div class="slot-label">B</div><select class="slot-select" id="slot_3" onchange="onSlotChange()"><option value="">-- 選手を選択 --</option></select></div>
+  </div>
+
+  <!-- 第3マッチ -->
+  <div class="match-group" id="matchGroup3">
+    <div class="match-group-title">
+      <span class="match-num">3</span>第3マッチ
+      <label class="open-toggle"><input type="checkbox" id="openCheck" onchange="onOpenChange()"><span>オープン</span></label>
+    </div>
+    <div class="slot-row"><div class="slot-label">A</div><select class="slot-select" id="slot_4" onchange="onSlotChange()"><option value="">-- 選手を選択 --</option></select></div>
+    <div class="slot-row"><div class="slot-label">B</div><select class="slot-select" id="slot_5" onchange="onSlotChange()"><option value="">-- 選手を選択 --</option></select></div>
+  </div>
+
+  <button class="btn btn-primary" id="orderSubmitBtn" onclick="submitOrder()" disabled>オーダーを送信</button>
+  <p class="text-sm text-center mt-12" id="orderDeadlineMsg"></p>
+</div>
+
+<!-- ============================================================
+     JavaScript
+     ============================================================ -->
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzaMlWM2GdU7hhTUN1ArXX-9RLs79CqIad_a1VpF6cEXgheTZ8uNW4mnVYbP_xlpCzR0A/exec";
+
+const state = {
+  teamName: "",
+  teamRosters: {},
+  tasks: [],
+  currentTask: null,
+  currentRoster: [],
+  screenHistory: []
+};
+
+// ============================================================
+// Screen Navigation
+// ============================================================
+const showScreen = (id) => {
+  const current = document.querySelector('.screen.active');
+  if (current && current.id !== id) state.screenHistory.push(current.id);
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+};
+const goBack = () => {
+  const prev = state.screenHistory.pop();
+  if (prev) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(prev).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+};
+
+// ============================================================
+// Loading & Toast
+// ============================================================
+const showLoading = (msg = "読み込み中...") => {
+  document.getElementById('loadingMsg').textContent = msg;
+  document.getElementById('loadingOverlay').classList.add('show');
+};
+const hideLoading = () => document.getElementById('loadingOverlay').classList.remove('show');
+const showToast = (msg, type = "success") => {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 2800);
+};
+
+// ============================================================
+// API
+// ============================================================
+const apiGet = async (action, params = {}) => {
+  const url = new URL(GAS_URL);
+  url.searchParams.set('action', action);
+  Object.keys(params).forEach(k => url.searchParams.set(k, params[k]));
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};
+const apiPost = async (payload) => {
+  const res = await fetch(GAS_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};
+
+// ============================================================
+// Login
+// ============================================================
+const doLogin = async () => {
+  const code = document.getElementById('loginCode').value.trim();
+  const errEl = document.getElementById('loginError');
+  errEl.textContent = "";
+  if (!code) { errEl.textContent = "コードを入力してください"; return; }
+
+  showLoading("認証中...");
+  try {
+    const data = await apiGet('login', { code });
+    if (data.error) { errEl.textContent = data.error; hideLoading(); return; }
+    state.teamName = data.teamName;
+    await loadHome();
+    hideLoading();
+    showScreen('screenHome');
+  } catch (err) {
+    hideLoading();
+    errEl.textContent = "通信エラー: " + err.message;
+  }
+};
+const doLogout = () => {
+  state.teamName = "";
+  state.teamRosters = {};
+  state.tasks = [];
+  state.screenHistory = [];
+  document.getElementById('loginCode').value = "";
+  showScreen('screenLogin');
+};
+document.getElementById('loginCode').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// ============================================================
+// 受付確認画面
+// ============================================================
+const loadHome = async () => {
+  const data = await apiGet('getDashboardData', { teamName: state.teamName });
+  if (data.error) {
+    showToast("データ取得エラー: " + data.error, "error");
+    return;
+  }
+  state.teamRosters = data.teamRosters || {};
+  state.tasks = data.tasks || [];
+  renderHome();
+};
+
+const renderHome = () => {
+  document.getElementById('homeTeamBadge').textContent = state.teamName;
+
+  // ペンディング = 到着前 OR オーダー未提出
+  const pending = state.tasks.filter(t => !t.isArrived || !t.hasOrder);
+  const done = state.tasks.filter(t => t.isArrived && t.hasOrder);
+
+  document.getElementById('pendingCount').textContent = pending.length;
+  document.getElementById('doneCount').textContent = done.length;
+
+  const pendingContainer = document.getElementById('pendingList');
+  const doneContainer = document.getElementById('doneList');
+
+  pendingContainer.innerHTML = pending.length === 0
+    ? '<div class="empty-state"><p>すべて完了しています</p></div>'
+    : pending.map(task => renderTaskCard(task, state.tasks.indexOf(task))).join('');
+
+  doneContainer.innerHTML = done.length === 0
+    ? '<div class="empty-state"><p>まだオーダー提出済の試合はありません</p></div>'
+    : done.map(task => renderTaskCard(task, state.tasks.indexOf(task))).join('');
+
+  const now = new Date().toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
+  document.getElementById('lastUpdated').textContent = `最終更新: ${now}`;
+};
+
+const renderTaskCard = (task, globalIndex) => {
+  let pillClass, pillText, statusClass;
+  if (!task.isArrived) {
+    pillClass = "pending"; pillText = "受付前"; statusClass = "pending";
+  } else if (!task.hasOrder) {
+    pillClass = "pending"; pillText = "オーダー未提出"; statusClass = "pending";
+  } else {
+    pillClass = "ordered"; pillText = "オーダー提出済"; statusClass = "ordered";
+  }
+
+  const timeInfo = (task.deadline || task.callTime) ? `
+    <div class="time-info">
+      ${task.deadline ? `<span class="label">締切</span>${task.deadline}` : ''}
+      ${task.callTime ? `&nbsp;<span class="label">召集</span>${task.callTime}` : ''}
+    </div>
+  ` : '';
+
+  return `
+    <div class="task-card ${statusClass}" onclick="onTaskSelect(${globalIndex})">
+      <div class="match-id">${task.matchId} <span class="court-label">コート ${task.court}</span></div>
+      <div class="round-label">${task.round}</div>
+      <div class="matchup">${task.entityName}<span class="vs">vs</span>${task.opponent}</div>
+      ${timeInfo}
+      <span class="status-pill ${pillClass}">${pillText}</span>
+      <span class="arrow-icon">›</span>
+    </div>`;
+};
+
+// ============================================================
+// Task Selection
+// ============================================================
+const onTaskSelect = (index) => {
+  const task = state.tasks[index];
+  state.currentTask = task;
+
+  if (task.opponent === '未定' || !task.opponent) {
+    showToast("対戦相手が未定です", "error");
+    return;
+  }
+
+  if (!task.isArrived) {
+    // 到着未済 → 到着受付画面へ
+    renderArrivalScreen(task);
+    showScreen('screenArrival');
+    return;
+  }
+
+  // 到着済み → オーダー画面（提出済でも修正可能）
+  renderOrderScreen(task);
+  showScreen('screenOrder');
+};
+
+// ============================================================
+// Arrival
+// ============================================================
+const renderArrivalScreen = (task) => {
+  document.getElementById('arrTeamBadge').textContent = task.entityName;
+  document.getElementById('arrivalDetail').innerHTML = `
+    <div class="row"><span class="label">試合ID</span><span class="value">${task.matchId}</span></div>
+    <div class="row"><span class="label">試合区分</span><span class="value">${task.round}</span></div>
+    <div class="row"><span class="label">コート</span><span class="value">${task.court}</span></div>
+    <div class="row"><span class="label">対戦相手</span><span class="value">${task.opponent}</span></div>
+    ${task.callTime ? `<div class="row"><span class="label">召集時刻</span><span class="value">${task.callTime}</span></div>` : ''}
+  `;
+  document.getElementById('arrivalBtn').disabled = false;
+};
+
+const submitArrival = async () => {
+  const task = state.currentTask;
+  if (!task) return;
+
+  showLoading("受付処理中...");
+  try {
+    const result = await apiPost({
+      type: "SUBMIT_ARRIVAL",
+      matchId: task.matchId,
+      entityName: task.entityName
+    });
+    if (result.error) throw new Error(result.error);
+    
+    hideLoading();
+    showToast("到着受付が完了しました");
+    
+    setTimeout(async () => {
+      showLoading("更新中...");
+      await loadHome();
+      hideLoading();
+      // 続けてオーダー画面へ
+      const updatedTask = state.tasks.find(t => t.matchId === task.matchId);
+      if (updatedTask && updatedTask.isArrived) {
+        state.currentTask = updatedTask;
+        renderOrderScreen(updatedTask);
+        showScreen('screenOrder');
+      } else {
+        state.screenHistory = [];
+        showScreen('screenHome');
+      }
+    }, 800);
+  } catch (err) {
+    hideLoading();
+    showToast("通信エラー: " + err.message, "error");
+  }
+};
+
+// ============================================================
+// Order
+// ============================================================
+const renderOrderScreen = (task) => {
+  document.getElementById('ordTeamBadge').textContent = task.entityName;
+  document.getElementById('orderHeader').innerHTML = `
+    <div class="match-label">${task.matchId}　${task.round}<span class="court-tag">コート ${task.court}</span></div>
+    <div class="match-title">${task.entityName} vs ${task.opponent}</div>
+  `;
+
+  const roster = state.teamRosters[task.entityName] || [];
+  state.currentRoster = roster;
+
+  document.getElementById('rosterTags').innerHTML =
+    roster.map(p => `<span class="roster-tag" data-name="${p}">${p}</span>`).join('');
+
+  // セレクト初期化
+  for (let s = 0; s < 6; s++) {
+    const sel = document.getElementById(`slot_${s}`);
+    sel.value = "";
+    sel.classList.remove('filled');
+    sel.disabled = false;
+  }
+
+  document.getElementById('openCheck').checked = false;
+  document.getElementById('matchGroup3').classList.remove('open-match');
+
+  rebuildAllSelects();
+
+  document.getElementById('orderDeadlineMsg').textContent = task.deadline 
+    ? `⏰ オーダー締切: ${task.deadline}` 
+    : '';
+  document.getElementById('orderSubmitBtn').disabled = true;
+};
+
+const rebuildAllSelects = () => {
+  const currentValues = [];
+  for (let s = 0; s < 6; s++) {
+    currentValues.push(document.getElementById(`slot_${s}`).value);
+  }
+
+  const roster = state.currentRoster;
+
+  for (let s = 0; s < 6; s++) {
+    const sel = document.getElementById(`slot_${s}`);
+    if (sel.disabled) continue;
+
+    const myValue = currentValues[s];
+    const usedByOthers = currentValues.filter((v, i) => v && i !== s);
+
+    sel.innerHTML = '<option value="">-- 選手を選択 --</option>';
+
+    roster.forEach(p => {
+      const isUsed = usedByOthers.includes(p);
+      if (!isUsed || p === myValue) {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        if (p === myValue) opt.selected = true;
+        sel.appendChild(opt);
+      }
+    });
+
+    sel.classList.toggle('filled', !!myValue);
+  }
+
+  const allSelected = currentValues.filter(v => v);
+  document.querySelectorAll('.roster-tag').forEach(tag => {
+    tag.classList.toggle('used', allSelected.includes(tag.dataset.name));
+  });
+};
+
+const onSlotChange = () => {
+  rebuildAllSelects();
+  validateOrder();
+};
+
+const onOpenChange = () => {
+  const checked = document.getElementById('openCheck').checked;
+  const group3 = document.getElementById('matchGroup3');
+
+  document.getElementById('slot_4').disabled = checked;
+  document.getElementById('slot_5').disabled = checked;
+  group3.classList.toggle('open-match', checked);
+
+  if (checked) {
+    document.getElementById('slot_4').value = "";
+    document.getElementById('slot_5').value = "";
+    document.getElementById('slot_4').classList.remove('filled');
+    document.getElementById('slot_5').classList.remove('filled');
+  }
+  rebuildAllSelects();
+  validateOrder();
+};
+
+const validateOrder = () => {
+  const isOpen = document.getElementById('openCheck').checked;
+  const maxSlot = isOpen ? 4 : 6;
+  let filled = 0;
+  for (let s = 0; s < maxSlot; s++) {
+    const val = document.getElementById(`slot_${s}`).value;
+    if (val) filled++;
+  }
+  document.getElementById('orderSubmitBtn').disabled = (filled !== maxSlot);
+};
+
+const submitOrder = async () => {
+  const task = state.currentTask;
+  if (!task) return;
+
+  const isOpen = document.getElementById('openCheck').checked;
+  const order = [];
+  for (let s = 0; s < 6; s++) {
+    if (isOpen && s >= 4) {
+      order.push("オープン");
+    } else {
+      order.push(document.getElementById(`slot_${s}`).value);
+    }
+  }
+
+  showLoading("オーダー送信中...");
+  try {
+    const result = await apiPost({
+      type: "SUBMIT_ORDER",
+      matchId: task.matchId,
+      entityName: task.entityName,
+      order: order
+    });
+    if (result.error) throw new Error(result.error);
+    
+    hideLoading();
+    showToast(result.updated ? "オーダーを更新しました" : "オーダーを送信しました");
+
+    setTimeout(async () => {
+      showLoading("更新中...");
+      await loadHome();
+      hideLoading();
+      state.screenHistory = [];
+      showScreen('screenHome');
+    }, 800);
+  } catch (err) {
+    hideLoading();
+    showToast("通信エラー: " + err.message, "error");
+  }
+};
+</script>
+</body>
+</html>
