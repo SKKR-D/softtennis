@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   Design Tokens — 青系
+   Design Tokens — デフォルト（男子＝青系）
    ============================================================ */
 :root {
   --c-bg:       #eef3f8;
@@ -24,6 +24,8 @@
   --c-danger-light: #ffebee;
   --c-warn:     #f57c00;
   --c-warn-light: #fff4e5;
+  --c-overdue:  #fff9c4;
+  --c-overdue-strong: #fbc02d;
   --c-text:     #1a1a1a;
   --c-text2:    #5f6b7a;
   --c-border:   #c4d2e0;
@@ -37,6 +39,25 @@
   --font-en: 'Inter', sans-serif;
 }
 
+/* 女子＝赤紫系（深め） */
+body[data-gender="女子"] {
+  --c-bg:       #f9eef4;
+  --c-surface2: #f1dfe9;
+  --c-accent:   #a3216b;
+  --c-accent-light: #f7e6ef;
+  --c-accent2:  #d81b60;
+  --c-accent2-light: #fce4ec;
+  --c-border:   #e0c3d4;
+  --shadow: 0 2px 8px rgba(163,33,107,.10);
+  --shadow-md: 0 4px 16px rgba(163,33,107,.15);
+  --shadow-lg: 0 8px 28px rgba(163,33,107,.20);
+}
+
+/* 締切超過 = 黄色オーバーレイ */
+body.deadline-overdue {
+  --c-bg: #fffbe6;
+}
+
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
 body {
@@ -45,9 +66,44 @@ body {
   color: var(--c-text);
   min-height: 100dvh;
   overflow-x: hidden;
+  transition: background-color .3s ease;
 }
 
-.screen { display: none; padding: 16px; max-width: 480px; margin: 0 auto; }
+/* 締切超過オーバーレイ（うっすら黄色がかる） */
+body.deadline-overdue::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(251, 192, 45, 0.10);
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* 締切超過バナー */
+.overdue-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: var(--c-overdue-strong);
+  color: #4a3500;
+  text-align: center;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  z-index: 200;
+  display: none;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 8px rgba(251,192,45,.4);
+  animation: bannerSlideDown .4s ease-out;
+}
+@keyframes bannerSlideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+body.deadline-overdue .overdue-banner { display: block; }
+body.deadline-overdue .screen.active { padding-top: 56px; }
+body.deadline-overdue .top-bar { top: 40px; }
+
+.screen { display: none; padding: 16px; max-width: 480px; margin: 0 auto; position: relative; z-index: 1; }
 .screen.active { display: block; animation: fadeUp .3s ease-out; }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
@@ -63,6 +119,7 @@ body {
   border-bottom: 1px solid var(--c-border);
   padding: 10px 16px; display: flex; align-items: center; gap: 10px;
   margin: -16px -16px 0 -16px;
+  transition: top .3s ease;
 }
 .top-bar h1 { font-size: 14px; font-weight: 700; flex: 1; }
 .top-bar .team-badge {
@@ -123,6 +180,7 @@ body {
   background: var(--c-accent); color: #fff;
   box-shadow: 0 4px 12px rgba(13,77,140,.30);
 }
+body[data-gender="女子"] .btn-primary { box-shadow: 0 4px 12px rgba(163,33,107,.30); }
 .btn-secondary {
   background: var(--c-surface); color: var(--c-accent);
   border: 2px solid var(--c-accent);
@@ -211,7 +269,6 @@ body {
   color: var(--c-accent); letter-spacing: 1px;
 }
 
-/* 締切警告 */
 .message-card.warn {
   background: var(--c-warn-light); border: 2px solid var(--c-warn);
 }
@@ -262,7 +319,6 @@ body {
   padding: 1px 6px; border-radius: 4px; margin-right: 4px;
 }
 
-/* 状態バッジ */
 .status-badge {
   display: inline-block; font-size: 11px; font-weight: 700;
   padding: 4px 12px; border-radius: 20px;
@@ -452,9 +508,6 @@ body {
 .modal .modal-buttons { display: flex; gap: 8px; }
 .modal .modal-buttons .btn { padding: 12px; font-size: 14px; }
 
-/* ============================================================
-   Utilities
-   ============================================================ */
 .mt-12 { margin-top: 12px; }
 .mt-16 { margin-top: 16px; }
 .mt-20 { margin-top: 20px; }
@@ -468,6 +521,11 @@ body {
 </head>
 <body>
 
+<!-- 締切超過バナー（締切超過時のみ表示） -->
+<div class="overdue-banner" id="overdueBanner">
+  ⚠️ オーダー締切を過ぎています
+</div>
+
 <!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
@@ -477,7 +535,7 @@ body {
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<!-- Modal（確認ダイアログ） -->
+<!-- Modal -->
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal">
     <h3 id="modalTitle">確認</h3>
@@ -507,7 +565,7 @@ body {
 </div>
 
 <!-- ============================================================
-     Screen: Arrival（到着受付前）
+     Screen: Arrival
      ============================================================ -->
 <div class="screen" id="screenArrival">
   <div class="top-bar">
@@ -532,7 +590,7 @@ body {
 </div>
 
 <!-- ============================================================
-     Screen: PreOrder（オーダー提出前）
+     Screen: PreOrder
      ============================================================ -->
 <div class="screen" id="screenPreOrder">
   <div class="top-bar">
@@ -570,7 +628,7 @@ body {
 </div>
 
 <!-- ============================================================
-     Screen: Order Input（オーダー入力 - 従来通り）
+     Screen: Order Input
      ============================================================ -->
 <div class="screen" id="screenOrder">
   <div class="top-bar">
@@ -622,7 +680,7 @@ body {
 </div>
 
 <!-- ============================================================
-     Screen: PostOrder（オーダー送信完了）
+     Screen: PostOrder
      ============================================================ -->
 <div class="screen" id="screenPostOrder">
   <div class="top-bar">
@@ -651,7 +709,7 @@ body {
 </div>
 
 <!-- ============================================================
-     Screen: ViewOrder（提出済オーダー確認）
+     Screen: ViewOrder
      ============================================================ -->
 <div class="screen" id="screenViewOrder">
   <div class="top-bar">
@@ -680,7 +738,7 @@ body {
 </div>
 
 <!-- ============================================================
-     Screen: Waiting（次戦待機）
+     Screen: Waiting
      ============================================================ -->
 <div class="screen" id="screenWaiting">
   <div class="top-bar">
@@ -706,7 +764,7 @@ body {
 </div>
 
 <!-- ============================================================
-     Screen: AllDone（全試合完了）
+     Screen: AllDone
      ============================================================ -->
 <div class="screen" id="screenAllDone">
   <div class="top-bar">
@@ -736,22 +794,24 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzaMlWM2GdU7hhTUN1ArXX-
 
 const state = {
   teamName: "",
+  gender: "",
   teamRosters: {},
-  tasks: [],         // 自チーム全試合（リーグ1〜3戦目）
-  currentRoundIndex: 0,  // 0=1戦目, 1=2戦目, 2=3戦目
+  tasks: [],
+  currentRoundIndex: 0,
   currentTask: null,
   currentRoster: [],
   isArrived: false,
   arrivalTime: '',
   modalCallback: null,
   waitingPollerId: null,
-  clockTimerId: null
+  clockTimerId: null,
+  overdueTimerId: null
 };
 
 const ROUND_LABELS = ['リーグ1戦目', 'リーグ2戦目', 'リーグ3戦目'];
 
 // ============================================================
-// Clock（現在時刻リアルタイム更新）
+// Clock
 // ============================================================
 const startClock = () => {
   const update = () => {
@@ -780,7 +840,8 @@ const showScreen = (id) => {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
-  stopWaitingPoller();  // 画面遷移時はpoller停止
+  stopWaitingPoller();
+  checkOverdue();  // 画面遷移時に締切チェック
 };
 const goBack = () => {
   const prev = screenHistory.pop();
@@ -845,7 +906,6 @@ const apiPost = async (payload) => {
 // 進行ステータスバー
 // ============================================================
 const renderProgressBar = (containerId, currentStep) => {
-  // currentStep: 'arrival' | 'round1' | 'round2' | 'round3' | 'done'
   const steps = [
     { key: 'arrival', label: '到着', icon: '📍' },
     { key: 'round1', label: '1戦目', icon: '1' },
@@ -883,7 +943,7 @@ const renderProgressBar = (containerId, currentStep) => {
 };
 
 // ============================================================
-// Deadline Warning（締切まで残り時間に応じて警告レベル）
+// 締切警告（カード単位）
 // ============================================================
 const updateDeadlineCard = (cardId, deadlineStr) => {
   const card = document.getElementById(cardId);
@@ -891,20 +951,48 @@ const updateDeadlineCard = (cardId, deadlineStr) => {
   
   card.classList.remove('warn', 'danger');
   
-  const now = new Date();
-  const [hh, mm] = deadlineStr.split(':').map(Number);
-  if (isNaN(hh) || isNaN(mm)) return;
-  
-  const deadline = new Date();
-  deadline.setHours(hh, mm, 0, 0);
-  
-  const diffMin = (deadline - now) / 60000;
+  const diffMin = getDeadlineDiffMinutes(deadlineStr);
+  if (diffMin === null) return;
   
   if (diffMin < 0) {
     card.classList.add('danger');
   } else if (diffMin <= 5) {
     card.classList.add('warn');
   }
+};
+
+const getDeadlineDiffMinutes = (deadlineStr) => {
+  if (!deadlineStr) return null;
+  const [hh, mm] = String(deadlineStr).split(':').map(Number);
+  if (isNaN(hh) || isNaN(mm)) return null;
+  const now = new Date();
+  const deadline = new Date();
+  deadline.setHours(hh, mm, 0, 0);
+  return (deadline - now) / 60000;
+};
+
+// ============================================================
+// 締切超過の全画面警告（黄色オーバーレイ＋バナー）
+// ============================================================
+const checkOverdue = () => {
+  const task = state.currentTask;
+  if (!task || !task.deadline) {
+    document.body.classList.remove('deadline-overdue');
+    return;
+  }
+  
+  const diffMin = getDeadlineDiffMinutes(task.deadline);
+  if (diffMin !== null && diffMin < 0) {
+    // 締切超過
+    document.body.classList.add('deadline-overdue');
+  } else {
+    document.body.classList.remove('deadline-overdue');
+  }
+};
+
+const startOverdueWatcher = () => {
+  if (state.overdueTimerId) clearInterval(state.overdueTimerId);
+  state.overdueTimerId = setInterval(checkOverdue, 15000);  // 15秒ごとにチェック
 };
 
 // ============================================================
@@ -921,9 +1009,17 @@ const doLogin = async () => {
     const data = await apiGet('login', { code });
     if (data.error) { errEl.textContent = data.error; hideLoading(); return; }
     state.teamName = data.teamName;
+    state.gender = data.gender || '';
+    
+    // 男女別カラー適用
+    if (state.gender) {
+      document.body.dataset.gender = state.gender;
+    }
+    
     await loadDashboard();
     hideLoading();
     startClock();
+    startOverdueWatcher();
     navigateToProperScreen();
   } catch (err) {
     hideLoading();
@@ -933,14 +1029,22 @@ const doLogin = async () => {
 
 const doLogout = () => {
   state.teamName = "";
+  state.gender = "";
   state.teamRosters = {};
   state.tasks = [];
   state.currentRoundIndex = 0;
+  state.currentTask = null;
   state.isArrived = false;
   state.arrivalTime = '';
   screenHistory.length = 0;
   stopWaitingPoller();
   if (state.clockTimerId) clearInterval(state.clockTimerId);
+  if (state.overdueTimerId) clearInterval(state.overdueTimerId);
+  
+  // 配色リセット
+  delete document.body.dataset.gender;
+  document.body.classList.remove('deadline-overdue');
+  
   document.getElementById('loginCode').value = "";
   showScreen('screenLogin');
 };
@@ -950,24 +1054,21 @@ document.getElementById('loginCode').addEventListener('keydown', (e) => {
 });
 
 // ============================================================
-// Load Dashboard（DBから最新データ取得）
+// Load Dashboard
 // ============================================================
 const loadDashboard = async () => {
   const data = await apiGet('getDashboardData', { teamName: state.teamName });
   if (data.error) throw new Error(data.error);
   
   state.teamRosters = data.teamRosters || {};
-  // 自チームの試合をリーグ戦順にソート
   const allTasks = data.tasks || [];
   const sortedTasks = ROUND_LABELS.map(label => {
     return allTasks.find(t => t.round === label);
   });
-  state.tasks = sortedTasks;  // [1戦目, 2戦目, 3戦目]
+  state.tasks = sortedTasks;
   
-  // 到着済かを判定
   state.isArrived = state.tasks.some(t => t && t.isArrived);
   
-  // 現在進行中の試合インデックスを判定
   state.currentRoundIndex = 0;
   for (let i = 0; i < 3; i++) {
     const t = state.tasks[i];
@@ -976,14 +1077,13 @@ const loadDashboard = async () => {
       return;
     }
   }
-  state.currentRoundIndex = 3;  // 全試合提出済み
+  state.currentRoundIndex = 3;
 };
 
 // ============================================================
 // 状態に応じた画面選択
 // ============================================================
 const navigateToProperScreen = () => {
-  // 全試合提出済み
   if (state.currentRoundIndex >= 3) {
     showAllDoneScreen();
     return;
@@ -991,7 +1091,6 @@ const navigateToProperScreen = () => {
   
   const currentTask = state.tasks[state.currentRoundIndex];
   
-  // タスクが取得できない（対戦相手未確定など）
   if (!currentTask) {
     showWaitingScreen();
     return;
@@ -999,24 +1098,21 @@ const navigateToProperScreen = () => {
   
   state.currentTask = currentTask;
   
-  // 到着未済
   if (!state.isArrived) {
     showArrivalScreen();
     return;
   }
   
-  // 到着済 → オーダー提出前画面
   showPreOrderScreen();
 };
 
 // ============================================================
-// Screen: Arrival（到着受付）
+// Screen: Arrival
 // ============================================================
 const showArrivalScreen = () => {
   document.getElementById('arrTeamBadge').textContent = state.teamName;
   renderProgressBar('arrProgressBar', 'arrival');
   
-  // 1戦目情報から召集時刻を取得（参考情報）
   const round1 = state.tasks[0];
   let deadlineStr = '';
   if (round1 && round1.callTime) {
@@ -1026,7 +1122,6 @@ const showArrivalScreen = () => {
   }
   document.getElementById('arrDeadlineInfo').innerHTML = deadlineStr;
   
-  // 締切警告
   if (round1 && round1.callTime) {
     updateDeadlineCard('arrMessageCard', round1.callTime);
   }
@@ -1071,13 +1166,12 @@ const formatTimeNow = () => {
 };
 
 // ============================================================
-// Screen: PreOrder（オーダー提出前）
+// Screen: PreOrder
 // ============================================================
 const showPreOrderScreen = () => {
   const task = state.currentTask;
   const roundIdx = state.currentRoundIndex;
   
-  // 2戦目・3戦目で対戦相手未定なら待機画面
   if (!task || !task.opponent || task.opponent === '未定') {
     showWaitingScreen();
     return;
@@ -1087,7 +1181,6 @@ const showPreOrderScreen = () => {
   document.getElementById('preOrderTitle').textContent = `${task.round}オーダー提出`;
   renderProgressBar('preOrderProgressBar', `round${roundIdx + 1}`);
   
-  // 到着受付済バッジ
   const arrTime = state.arrivalTime || '済';
   document.getElementById('arrivalStatusBadge').innerHTML = `✓ 到着受付済 ${arrTime !== '済' ? '(' + arrTime + ')' : ''}`;
   
@@ -1210,7 +1303,22 @@ const confirmSubmitOrder = () => {
     else order.push(document.getElementById(`slot_${s}`).value);
   }
   
+  // 締切超過チェック（警告表示のみ、送信はブロックしない）
+  const task = state.currentTask;
+  let overdueWarning = '';
+  if (task && task.deadline) {
+    const diff = getDeadlineDiffMinutes(task.deadline);
+    if (diff !== null && diff < 0) {
+      overdueWarning = `
+        <div style="background:#fff9c4;border:1px solid #fbc02d;padding:10px;border-radius:8px;margin-bottom:10px;color:#7a5a00;font-weight:700;">
+          ⚠️ オーダー締切（${task.deadline}）を過ぎていますが、送信は可能です
+        </div>
+      `;
+    }
+  }
+  
   const bodyHtml = `
+    ${overdueWarning}
     <div style="background:#f5f5f5;padding:12px;border-radius:8px;margin-bottom:10px;">
       <div style="margin-bottom:8px;"><strong>第1マッチ</strong><br>
         A: ${order[0]}　B: ${order[1]}</div>
@@ -1254,7 +1362,7 @@ const submitOrder = async (order) => {
 };
 
 // ============================================================
-// Screen: PostOrder（オーダー送信完了）
+// Screen: PostOrder
 // ============================================================
 const showPostOrderScreen = () => {
   const roundIdx = state.currentRoundIndex;
@@ -1273,15 +1381,12 @@ const showPostOrderScreen = () => {
     document.getElementById('postOrderCallInfo').style.display = 'none';
   }
   
-  // ボタン配置
   const btnContainer = document.getElementById('postOrderButtons');
   if (roundIdx >= 2) {
-    // 3戦目完了 → [提出済確認]のみ
     btnContainer.innerHTML = `
       <button class="btn btn-primary btn-large mt-16" onclick="showViewOrderScreen(${roundIdx})">提出済のオーダーを確認する</button>
     `;
   } else {
-    // 1〜2戦目完了 → 次戦オーダー + 提出済確認
     btnContainer.innerHTML = `
       <button class="btn btn-primary btn-large mt-16" onclick="proceedToNextRound()">${roundIdx === 0 ? '2' : '3'}試合目のオーダー提出画面へ</button>
       <button class="btn btn-secondary mt-12" onclick="showViewOrderScreen(${roundIdx})">提出済のオーダーを確認する</button>
@@ -1300,7 +1405,7 @@ const proceedToNextRound = async () => {
 };
 
 // ============================================================
-// Screen: ViewOrder（提出済オーダー確認）
+// Screen: ViewOrder
 // ============================================================
 const showViewOrderScreen = async (roundIdx) => {
   showLoading("オーダー取得中...");
@@ -1321,18 +1426,14 @@ const showViewOrderScreen = async (roundIdx) => {
   document.getElementById('viewOrderTeamA').textContent = state.teamName;
   document.getElementById('viewOrderTeamB').textContent = task.opponent;
   
-  // 提出済オーダー取得（getDashboardDataには含まれないので、別途取得が必要）
   await renderSubmittedOrder(task, roundIdx);
   
-  // ボタン配置
   const btnContainer = document.getElementById('viewOrderButtons');
   if (roundIdx >= 2) {
-    // 3戦目 → [ログアウト]のみ
     btnContainer.innerHTML = `
       <button class="btn btn-secondary mt-16" onclick="doLogout()">ログアウト</button>
     `;
   } else {
-    // 1〜2戦目 → [次戦のオーダー提出]
     btnContainer.innerHTML = `
       <button class="btn btn-primary btn-large mt-16" onclick="proceedToNextRoundFromView()">${roundIdx === 0 ? '2' : '3'}試合目のオーダーを提出する</button>
     `;
@@ -1347,7 +1448,6 @@ const proceedToNextRoundFromView = async () => {
 };
 
 const renderSubmittedOrder = async (task, roundIdx) => {
-  // 提出済みオーダーを別エンドポイントで取得
   try {
     const data = await apiGet('getOrder', { 
       matchId: task.matchId, 
@@ -1361,7 +1461,7 @@ const renderSubmittedOrder = async (task, roundIdx) => {
       return;
     }
     
-    const order = data.order;  // [{matchNum, slot, playerName, isOpen}]
+    const order = data.order;
     const byMatch = { 1: {}, 2: {}, 3: {} };
     order.forEach(o => {
       byMatch[o.matchNum][o.slot] = { name: o.playerName, isOpen: o.isOpen };
@@ -1400,7 +1500,7 @@ const renderSubmittedOrder = async (task, roundIdx) => {
 };
 
 // ============================================================
-// Screen: Waiting（次戦待機）
+// Screen: Waiting
 // ============================================================
 const showWaitingScreen = () => {
   const roundIdx = state.currentRoundIndex;
@@ -1423,12 +1523,13 @@ const startWaitingPoller = () => {
       const task = state.tasks[state.currentRoundIndex];
       if (task && task.opponent && task.opponent !== '未定') {
         stopWaitingPoller();
+        state.currentTask = task;
         showPreOrderScreen();
       }
     } catch (err) {
       // エラー時は次のpollに任せる
     }
-  }, 15000);  // 15秒ごとに更新
+  }, 15000);
 };
 
 const stopWaitingPoller = () => {
@@ -1451,7 +1552,7 @@ const manualRefresh = async () => {
 };
 
 // ============================================================
-// Screen: AllDone（全試合完了）
+// Screen: AllDone
 // ============================================================
 const showAllDoneScreen = () => {
   document.getElementById('allDoneTeamBadge').textContent = state.teamName;
@@ -1463,7 +1564,6 @@ const showAllDoneScreen = () => {
 // 締切警告の定期更新（10秒ごと）
 // ============================================================
 setInterval(() => {
-  // 表示中の各画面のカードを更新
   const task = state.currentTask;
   if (task) {
     if (task.callTime) updateDeadlineCard('arrMessageCard', task.callTime);
