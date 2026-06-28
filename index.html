@@ -1578,13 +1578,16 @@ const showViewOrderScreen = async (roundIdx) => {
   await renderSubmittedOrder(task, roundIdx);
   
   const btnContainer = document.getElementById('viewOrderButtons');
-  if (roundIdx >= 2) {
+  if (state.currentRoundIndex >= 3) {
+    // 全戦提出済み → ログアウト
     btnContainer.innerHTML = `
       <button class="btn btn-secondary mt-16" onclick="doLogout()">ログアウト</button>
     `;
   } else {
+    // まだ未提出の戦がある → その戦のオーダー画面へ
+    const nextRoundNum = state.currentRoundIndex + 1;
     btnContainer.innerHTML = `
-      <button class="btn btn-primary btn-large mt-16" onclick="proceedToNextRoundFromView()">${roundIdx === 0 ? '2' : '3'}試合目のオーダーを提出する</button>
+      <button class="btn btn-primary btn-large mt-16" onclick="proceedToNextRoundFromView()">${nextRoundNum}試合目のオーダーを提出する</button>
     `;
   }
   
