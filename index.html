@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>県中総体団体戦決勝リーグ 監督ポータル</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   Design Tokens — 青系カラー
+   Design Tokens — 青系
    ============================================================ */
 :root {
   --c-bg:       #eef3f8;
@@ -18,7 +18,10 @@
   --c-accent-light: #e3edf7;
   --c-accent2:  #1976d2;
   --c-accent2-light: #e8f0fc;
+  --c-success:  #2e7d32;
+  --c-success-light: #e8f5e9;
   --c-danger:   #d32f2f;
+  --c-danger-light: #ffebee;
   --c-warn:     #f57c00;
   --c-warn-light: #fff4e5;
   --c-text:     #1a1a1a;
@@ -29,13 +32,11 @@
   --r-lg: 20px;
   --shadow: 0 2px 8px rgba(13,77,140,.10);
   --shadow-md: 0 4px 16px rgba(13,77,140,.15);
+  --shadow-lg: 0 8px 28px rgba(13,77,140,.20);
   --font-ja: 'Noto Sans JP', sans-serif;
   --font-en: 'Inter', sans-serif;
 }
 
-/* ============================================================
-   Reset & Base
-   ============================================================ */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
 body {
@@ -46,10 +47,7 @@ body {
   overflow-x: hidden;
 }
 
-/* ============================================================
-   Screen System
-   ============================================================ */
-.screen { display: none; padding: 20px 16px 100px; max-width: 480px; margin: 0 auto; }
+.screen { display: none; padding: 16px; max-width: 480px; margin: 0 auto; }
 .screen.active { display: block; animation: fadeUp .3s ease-out; }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
@@ -57,25 +55,90 @@ body {
 }
 
 /* ============================================================
-   Header / Top Bar
+   Top Bar
    ============================================================ */
 .top-bar {
   position: sticky; top: 0; z-index: 100;
   background: rgba(255,255,255,.92); backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--c-border);
-  padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px; display: flex; align-items: center; gap: 10px;
+  margin: -16px -16px 0 -16px;
 }
-.top-bar .back-btn {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: var(--c-surface2); border: none; color: var(--c-text);
-  font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-}
-.top-bar .back-btn:active { background: var(--c-accent); color: #fff; }
-.top-bar h1 { font-size: 15px; font-weight: 700; flex: 1; }
+.top-bar h1 { font-size: 14px; font-weight: 700; flex: 1; }
 .top-bar .team-badge {
   font-size: 11px; background: var(--c-accent); color: #fff;
   padding: 3px 10px; border-radius: 20px; font-weight: 700;
   max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.top-bar .back-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--c-surface2); border: none; color: var(--c-text);
+  font-size: 16px; cursor: pointer;
+}
+.top-bar .back-btn:active { background: var(--c-accent); color: #fff; }
+
+/* ============================================================
+   進行ステータスバー
+   ============================================================ */
+.progress-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--c-surface); padding: 10px 12px;
+  border-radius: var(--r-sm); border: 1px solid var(--c-border);
+  margin: 12px 0; font-size: 11px; font-weight: 600;
+  box-shadow: var(--shadow);
+}
+.progress-step {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  color: var(--c-text2); flex: 1;
+}
+.progress-step .icon {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--c-surface2); color: var(--c-text2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+}
+.progress-step.done { color: var(--c-success); }
+.progress-step.done .icon { background: var(--c-success); color: #fff; }
+.progress-step.current { color: var(--c-accent2); font-weight: 700; }
+.progress-step.current .icon { background: var(--c-accent2); color: #fff; box-shadow: 0 0 0 3px var(--c-accent2-light); }
+.progress-step.pending .icon { background: var(--c-surface2); color: var(--c-text2); }
+.progress-step .label { font-size: 9px; }
+.progress-connector {
+  flex: 0.3; height: 2px; background: var(--c-border); margin: 0 2px;
+  margin-top: -10px;
+}
+.progress-connector.done { background: var(--c-success); }
+
+/* ============================================================
+   Common Button
+   ============================================================ */
+.btn {
+  display: block; width: 100%; padding: 16px; border: none; border-radius: var(--r-md);
+  font-size: 16px; font-weight: 700; cursor: pointer; transition: all .15s;
+  font-family: var(--font-ja);
+}
+.btn:active:not(:disabled) { transform: scale(.97); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn-primary {
+  background: var(--c-accent); color: #fff;
+  box-shadow: 0 4px 12px rgba(13,77,140,.30);
+}
+.btn-secondary {
+  background: var(--c-surface); color: var(--c-accent);
+  border: 2px solid var(--c-accent);
+}
+.btn-success {
+  background: var(--c-success); color: #fff;
+  box-shadow: 0 4px 12px rgba(46,125,50,.30);
+}
+.btn-large {
+  font-size: 20px; padding: 24px; font-weight: 900;
+  border-radius: var(--r-lg);
+}
+.btn-huge {
+  font-size: 24px; padding: 32px; font-weight: 900;
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
 }
 
 /* ============================================================
@@ -90,12 +153,11 @@ body {
   margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;
   font-size: 36px; color: #fff; box-shadow: 0 6px 20px rgba(13,77,140,.30);
 }
-.login-logo h2 { font-size: 18px; font-weight: 900; letter-spacing: -.3px; line-height: 1.4; }
+.login-logo h2 { font-size: 18px; font-weight: 900; line-height: 1.4; }
 .login-logo .subtitle { font-size: 14px; font-weight: 700; color: var(--c-accent); margin-top: 4px; }
 .login-logo p  { font-size: 13px; color: var(--c-text2); margin-top: 10px; }
 
-.login-form { margin-top: 24px; }
-.input-group { position: relative; margin-bottom: 16px; }
+.input-group { position: relative; margin: 24px 0 16px; }
 .input-group input {
   width: 100%; padding: 16px; font-size: 22px; text-align: center;
   letter-spacing: 10px; font-weight: 700; font-family: var(--font-en);
@@ -106,140 +168,123 @@ body {
 .input-group input:focus { border-color: var(--c-accent); }
 .input-group input::placeholder { letter-spacing: 2px; font-size: 14px; color: var(--c-text2); font-weight: 400; }
 
-.btn {
-  display: block; width: 100%; padding: 16px; border: none; border-radius: var(--r-md);
-  font-size: 16px; font-weight: 700; cursor: pointer; transition: all .15s;
-  font-family: var(--font-ja);
-}
-.btn:active { transform: scale(.97); }
-.btn-primary {
-  background: var(--c-accent); color: #fff;
-  box-shadow: 0 4px 12px rgba(13,77,140,.30);
-}
-.btn-primary:disabled { opacity: .4; cursor: not-allowed; }
-.btn-secondary {
-  background: var(--c-surface); color: var(--c-text);
-  border: 1px solid var(--c-border);
-}
-.btn-arrival {
-  background: var(--c-accent2); color: #fff;
-  box-shadow: 0 4px 12px rgba(25,118,210,.30);
-  font-size: 18px; padding: 20px;
-}
-
 .error-msg {
   text-align: center; color: var(--c-danger); font-size: 13px;
   margin-top: 8px; min-height: 20px;
 }
 
 /* ============================================================
-   受付確認画面
+   現在時刻表示（大）
    ============================================================ */
-.section-group { margin-bottom: 28px; }
-.section-title {
-  font-size: 13px; font-weight: 700; color: var(--c-text2);
-  margin-bottom: 10px; padding-left: 4px;
-  display: flex; align-items: center; gap: 6px;
+.clock-display {
+  text-align: center; padding: 16px 0;
 }
-.section-title .count {
-  background: var(--c-surface2); color: var(--c-text2);
-  font-size: 11px; padding: 1px 8px; border-radius: 10px;
-}
-
-.task-card {
-  background: var(--c-surface); border: 1px solid var(--c-border);
-  border-radius: var(--r-md); padding: 14px 16px; margin-bottom: 8px;
-  cursor: pointer; transition: all .15s; position: relative; overflow: hidden;
-  box-shadow: var(--shadow);
-}
-.task-card:active { background: var(--c-surface2); }
-.task-card::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-}
-.task-card.pending::before { background: var(--c-warn); }
-.task-card.done::before { background: var(--c-accent); }
-.task-card.ordered::before { background: var(--c-accent2); }
-
-.task-card .match-id {
-  font-family: var(--font-en); font-size: 11px; font-weight: 600;
-  color: var(--c-accent); margin-bottom: 2px;
-}
-.task-card .round-label {
+.clock-display .label {
   font-size: 12px; color: var(--c-text2); margin-bottom: 4px;
 }
-.task-card .court-label {
-  display: inline-block; font-size: 11px; font-weight: 700;
-  background: var(--c-accent2-light); color: var(--c-accent2);
-  padding: 2px 8px; border-radius: 10px; margin-left: 6px;
+.clock-display .time {
+  font-family: var(--font-en); font-size: 56px; font-weight: 700;
+  color: var(--c-accent); letter-spacing: 2px; line-height: 1;
 }
-.task-card .matchup {
-  font-size: 15px; font-weight: 700; line-height: 1.4;
-}
-.task-card .matchup .vs {
-  color: var(--c-text2); font-size: 12px; margin: 0 6px; font-weight: 500;
-}
-.task-card .time-info {
-  font-size: 11px; color: var(--c-text2); margin-top: 4px;
-}
-.task-card .time-info .label {
-  display: inline-block; background: var(--c-surface2); padding: 1px 6px;
-  border-radius: 4px; margin-right: 4px;
-}
-
-.task-card .status-pill {
-  position: absolute; top: 12px; right: 12px;
-  font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 10px;
-}
-.status-pill.pending { background: var(--c-warn-light); color: var(--c-warn); }
-.status-pill.done { background: var(--c-accent-light); color: var(--c-accent); }
-.status-pill.ordered { background: var(--c-accent2-light); color: var(--c-accent2); }
-
-.task-card .arrow-icon {
-  position: absolute; right: 14px; bottom: 12px;
-  font-size: 18px; color: var(--c-text2);
-}
-
-.empty-state {
-  text-align: center; padding: 48px 20px; color: var(--c-text2);
-}
-.empty-state .icon { font-size: 40px; margin-bottom: 12px; }
-.empty-state p { font-size: 14px; }
 
 /* ============================================================
-   Arrival Screen
+   メッセージカード
    ============================================================ */
-.arrival-info { text-align: center; padding: 40px 0 28px; }
-.arrival-info .big-icon { font-size: 56px; margin-bottom: 16px; }
-.arrival-info h2 { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
-.arrival-info p { font-size: 14px; color: var(--c-text2); line-height: 1.6; }
+.message-card {
+  background: var(--c-surface); border-radius: var(--r-lg);
+  padding: 20px; text-align: center; margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.message-card .big-icon {
+  font-size: 40px; margin-bottom: 8px;
+}
+.message-card h2 {
+  font-size: 20px; font-weight: 900; color: var(--c-accent);
+  margin-bottom: 8px;
+}
+.message-card .deadline-info {
+  font-size: 14px; color: var(--c-text); font-weight: 600;
+  margin-top: 4px; line-height: 1.5;
+}
+.message-card .deadline-info .time-em {
+  font-family: var(--font-en); font-size: 22px; font-weight: 900;
+  color: var(--c-accent); letter-spacing: 1px;
+}
 
-.arrival-detail {
-  background: var(--c-surface); border-radius: var(--r-md); border: 1px solid var(--c-border);
-  padding: 16px; margin-bottom: 24px; box-shadow: var(--shadow);
+/* 締切警告 */
+.message-card.warn {
+  background: var(--c-warn-light); border: 2px solid var(--c-warn);
 }
-.arrival-detail .row {
-  display: flex; justify-content: space-between; padding: 8px 0;
-  border-bottom: 1px solid var(--c-border); font-size: 14px;
+.message-card.warn h2 { color: var(--c-warn); }
+.message-card.warn .deadline-info .time-em { color: var(--c-warn); }
+
+.message-card.danger {
+  background: var(--c-danger-light); border: 2px solid var(--c-danger);
+  animation: pulseRed 1.5s ease-in-out infinite;
 }
-.arrival-detail .row:last-child { border-bottom: none; }
-.arrival-detail .row .label { color: var(--c-text2); }
-.arrival-detail .row .value { font-weight: 700; }
+.message-card.danger h2 { color: var(--c-danger); }
+.message-card.danger .deadline-info .time-em { color: var(--c-danger); }
+
+@keyframes pulseRed {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
 
 /* ============================================================
-   Order Screen
+   試合情報カード
    ============================================================ */
-.order-header {
-  background: var(--c-surface); border-radius: var(--r-md); border: 1px solid var(--c-border);
-  padding: 14px 16px; margin-bottom: 20px; box-shadow: var(--shadow);
+.match-info-card {
+  background: var(--c-surface); border-radius: var(--r-md);
+  padding: 14px 16px; margin-bottom: 12px;
+  border: 1px solid var(--c-border);
+  box-shadow: var(--shadow);
 }
-.order-header .match-label { font-size: 12px; color: var(--c-text2); }
-.order-header .match-title { font-size: 17px; font-weight: 700; margin-top: 4px; }
-.order-header .court-tag {
-  display: inline-block; margin-left: 8px;
+.match-info-card .meta {
+  font-size: 12px; color: var(--c-text2); margin-bottom: 4px;
+  display: flex; align-items: center; gap: 6px;
+}
+.match-info-card .court-badge {
   background: var(--c-accent2); color: #fff;
-  font-size: 12px; font-weight: 700;
+  font-size: 11px; font-weight: 700;
   padding: 2px 10px; border-radius: 10px;
 }
+.match-info-card .matchup {
+  font-size: 16px; font-weight: 700; line-height: 1.4; margin: 4px 0;
+}
+.match-info-card .vs-label {
+  color: var(--c-text2); font-size: 12px; margin: 0 6px; font-weight: 500;
+}
+.match-info-card .time-row {
+  font-size: 13px; color: var(--c-text2); margin-top: 6px;
+}
+.match-info-card .time-row .label {
+  display: inline-block; background: var(--c-surface2);
+  padding: 1px 6px; border-radius: 4px; margin-right: 4px;
+}
+
+/* 状態バッジ */
+.status-badge {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  padding: 4px 12px; border-radius: 20px;
+  background: var(--c-success-light); color: var(--c-success);
+  margin-bottom: 12px;
+}
+
+/* ============================================================
+   オーダー入力画面
+   ============================================================ */
+.roster-pool {
+  background: var(--c-surface); border-radius: var(--r-md); border: 1px solid var(--c-border);
+  padding: 14px 16px; margin-bottom: 16px; box-shadow: var(--shadow);
+}
+.roster-pool h4 { font-size: 13px; color: var(--c-text2); margin-bottom: 10px; font-weight: 700; }
+.roster-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.roster-tag {
+  font-size: 13px; padding: 6px 12px; border-radius: 20px;
+  background: var(--c-surface2); color: var(--c-text); font-weight: 500;
+  border: 1px solid var(--c-border); transition: all .15s;
+}
+.roster-tag.used { opacity: .35; text-decoration: line-through; }
 
 .match-group {
   background: var(--c-surface); border: 1px solid var(--c-border);
@@ -279,23 +324,89 @@ body {
 .open-toggle input[type="checkbox"] {
   width: 16px; height: 16px; accent-color: var(--c-warn); cursor: pointer;
 }
-.open-toggle span { white-space: nowrap; }
-
-.roster-pool {
-  background: var(--c-surface); border-radius: var(--r-md); border: 1px solid var(--c-border);
-  padding: 14px 16px; margin-bottom: 20px; box-shadow: var(--shadow);
-}
-.roster-pool h4 { font-size: 13px; color: var(--c-text2); margin-bottom: 10px; font-weight: 700; }
-.roster-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-.roster-tag {
-  font-size: 13px; padding: 6px 12px; border-radius: 20px;
-  background: var(--c-surface2); color: var(--c-text); font-weight: 500;
-  border: 1px solid var(--c-border); transition: all .15s;
-}
-.roster-tag.used { opacity: .35; text-decoration: line-through; background: var(--c-surface2); color: var(--c-text2); }
 
 /* ============================================================
-   Loading / Toast
+   提出済みオーダー表示
+   ============================================================ */
+.submitted-order {
+  background: var(--c-surface); border-radius: var(--r-md);
+  padding: 16px; margin-bottom: 12px; border: 1px solid var(--c-border);
+  box-shadow: var(--shadow);
+}
+.submitted-order .match-row {
+  padding: 10px 0; border-bottom: 1px solid var(--c-border);
+}
+.submitted-order .match-row:last-child { border-bottom: none; }
+.submitted-order .match-row .match-no {
+  font-size: 12px; font-weight: 700; color: var(--c-accent);
+  margin-bottom: 4px;
+}
+.submitted-order .match-row .players {
+  display: flex; gap: 14px;
+}
+.submitted-order .match-row .player {
+  flex: 1; font-size: 14px;
+}
+.submitted-order .match-row .player .slot {
+  font-size: 10px; color: var(--c-text2); margin-right: 4px;
+  display: inline-block; background: var(--c-surface2);
+  padding: 1px 5px; border-radius: 4px;
+}
+.submitted-order .match-row .player.open { color: var(--c-warn); font-weight: 700; }
+.submitted-order .footer-info {
+  margin-top: 12px; padding-top: 10px;
+  border-top: 1px solid var(--c-border);
+  font-size: 12px; color: var(--c-text2);
+}
+.submitted-order .footer-info .call-time {
+  font-weight: 700; color: var(--c-accent); font-size: 14px;
+}
+
+/* ============================================================
+   待機画面
+   ============================================================ */
+.waiting-card {
+  background: var(--c-surface); border-radius: var(--r-lg);
+  padding: 32px 20px; text-align: center; margin: 16px 0;
+  box-shadow: var(--shadow);
+}
+.waiting-card .icon { font-size: 48px; margin-bottom: 12px; }
+.waiting-card h2 { font-size: 18px; font-weight: 900; color: var(--c-accent); margin-bottom: 8px; }
+.waiting-card p { font-size: 14px; color: var(--c-text2); line-height: 1.6; }
+.waiting-card .auto-refresh {
+  margin-top: 12px; font-size: 11px; color: var(--c-text2);
+}
+
+/* ============================================================
+   完了画面（オーダー提出後）
+   ============================================================ */
+.complete-card {
+  background: linear-gradient(135deg, var(--c-success), #4caf50);
+  color: #fff; border-radius: var(--r-lg);
+  padding: 28px 20px; text-align: center; margin-bottom: 16px;
+  box-shadow: var(--shadow-lg);
+}
+.complete-card .big-check { font-size: 56px; margin-bottom: 8px; }
+.complete-card h2 { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
+.complete-card .match-info { font-size: 14px; opacity: 0.95; }
+.complete-card .call-info {
+  background: rgba(255,255,255,0.20); border-radius: var(--r-md);
+  padding: 12px; margin-top: 14px;
+  backdrop-filter: blur(4px);
+}
+.complete-card .call-info .label { font-size: 11px; opacity: 0.9; }
+.complete-card .call-info .time {
+  font-family: var(--font-en); font-size: 28px; font-weight: 900;
+  letter-spacing: 1px;
+}
+.complete-card .message {
+  margin-top: 14px; font-size: 13px; line-height: 1.6;
+  background: rgba(255,255,255,0.15); padding: 10px;
+  border-radius: var(--r-sm);
+}
+
+/* ============================================================
+   Loading / Toast / Modal
    ============================================================ */
 .spinner {
   display: inline-block; width: 20px; height: 20px;
@@ -321,31 +432,65 @@ body {
   transition: all .3s ease; max-width: 90%;
 }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-.toast.success { border-color: var(--c-accent); color: var(--c-accent); }
+.toast.success { border-color: var(--c-success); color: var(--c-success); }
 .toast.error   { border-color: var(--c-danger); color: var(--c-danger); }
+
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
+  display: none; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.modal-backdrop.show { display: flex; }
+.modal {
+  background: var(--c-surface); border-radius: var(--r-lg);
+  padding: 20px; max-width: 400px; width: 100%;
+  box-shadow: var(--shadow-lg);
+}
+.modal h3 { font-size: 17px; font-weight: 900; color: var(--c-accent); margin-bottom: 12px; }
+.modal .modal-body { font-size: 14px; color: var(--c-text); margin-bottom: 16px; }
+.modal .modal-buttons { display: flex; gap: 8px; }
+.modal .modal-buttons .btn { padding: 12px; font-size: 14px; }
 
 /* ============================================================
    Utilities
    ============================================================ */
 .mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
 .mt-20 { margin-top: 20px; }
+.mt-24 { margin-top: 24px; }
+.mb-12 { margin-bottom: 12px; }
 .text-center { text-align: center; }
 .text-sm { font-size: 13px; color: var(--c-text2); }
+.text-warn { color: var(--c-warn); font-weight: 700; }
+.text-danger { color: var(--c-danger); font-weight: 700; }
 </style>
 </head>
 <body>
 
-<!-- ========== Loading Overlay ========== -->
+<!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
   <p id="loadingMsg">読み込み中...</p>
 </div>
 
-<!-- ========== Toast ========== -->
+<!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<!-- Modal（確認ダイアログ） -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <h3 id="modalTitle">確認</h3>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-buttons">
+      <button class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
+      <button class="btn btn-primary" id="modalOkBtn">OK</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============================================================
-     Screen 1: Login
+     Screen: Login
      ============================================================ -->
 <div class="screen active" id="screenLogin">
   <div class="login-logo">
@@ -354,84 +499,115 @@ body {
     <div class="subtitle">監督ポータル</div>
     <p>認証コードを入力してください</p>
   </div>
-  <div class="login-form">
-    <div class="input-group">
-      <input type="text" id="loginCode" placeholder="認証コード" maxlength="10" inputmode="numeric" autocomplete="off">
-    </div>
-    <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">ログイン</button>
-    <div class="error-msg" id="loginError"></div>
+  <div class="input-group">
+    <input type="text" id="loginCode" placeholder="認証コード" maxlength="10" inputmode="numeric" autocomplete="off">
   </div>
+  <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">ログイン</button>
+  <div class="error-msg" id="loginError"></div>
 </div>
 
 <!-- ============================================================
-     Screen 2: 受付確認
-     ============================================================ -->
-<div class="screen" id="screenHome">
-  <div class="top-bar">
-    <h1>試合一覧</h1>
-    <span class="team-badge" id="homeTeamBadge"></span>
-  </div>
-  <div class="section-group mt-12" id="pendingSection">
-    <div class="section-title">🔶 受付前・オーダー未提出 <span class="count" id="pendingCount">0</span></div>
-    <div id="pendingList"></div>
-  </div>
-  <div class="section-group" id="doneSection">
-    <div class="section-title">✅ オーダー提出済み <span class="count" id="doneCount">0</span></div>
-    <div id="doneList"></div>
-  </div>
-  <button class="btn btn-secondary mt-20" onclick="doLogout()">ログアウト</button>
-  <p class="text-sm text-center mt-12" id="lastUpdated"></p>
-</div>
-
-<!-- ============================================================
-     Screen 3: Arrival
+     Screen: Arrival（到着受付前）
      ============================================================ -->
 <div class="screen" id="screenArrival">
   <div class="top-bar">
-    <button class="back-btn" onclick="goBack()">←</button>
     <h1>到着受付</h1>
     <span class="team-badge" id="arrTeamBadge"></span>
   </div>
-  <div class="arrival-info">
+  
+  <div id="arrProgressBar"></div>
+  
+  <div class="message-card" id="arrMessageCard">
     <div class="big-icon">📍</div>
-    <h2>到着受付</h2>
-    <p>本部に到着したことを報告します。<br>一度受付すると、以降の試合では自動スキップされます。</p>
+    <h2 id="arrMainMsg">到着受付前</h2>
+    <div class="deadline-info" id="arrDeadlineInfo"></div>
   </div>
-  <div class="arrival-detail" id="arrivalDetail"></div>
-  <button class="btn btn-arrival" id="arrivalBtn" onclick="submitArrival()">到着しました</button>
+  
+  <div class="clock-display">
+    <div class="label">現在時刻</div>
+    <div class="time" id="arrClock">--:--</div>
+  </div>
+  
+  <button class="btn btn-primary btn-huge mt-24" id="arrivalBtn" onclick="submitArrival()">到着しました</button>
 </div>
 
 <!-- ============================================================
-     Screen 4: Order
+     Screen: PreOrder（オーダー提出前）
+     ============================================================ -->
+<div class="screen" id="screenPreOrder">
+  <div class="top-bar">
+    <h1 id="preOrderTitle">オーダー提出</h1>
+    <span class="team-badge" id="preOrderTeamBadge"></span>
+  </div>
+  
+  <div id="preOrderProgressBar"></div>
+  
+  <div class="status-badge" id="arrivalStatusBadge"></div>
+  
+  <div class="message-card" id="preOrderMessageCard">
+    <h2 id="preOrderMainMsg">○戦目のオーダーを提出してください</h2>
+    <div class="deadline-info" id="preOrderDeadlineInfo"></div>
+  </div>
+  
+  <div class="match-info-card">
+    <div class="meta">
+      <span id="preOrderRound"></span>
+      <span class="court-badge" id="preOrderCourt"></span>
+    </div>
+    <div class="matchup">
+      <span id="preOrderTeamA"></span>
+      <span class="vs-label">対</span>
+      <span id="preOrderTeamB"></span>
+    </div>
+  </div>
+  
+  <div class="clock-display">
+    <div class="label">現在時刻</div>
+    <div class="time" id="preOrderClock">--:--</div>
+  </div>
+  
+  <button class="btn btn-primary btn-huge mt-24" onclick="goToOrderInput()">オーダー入力</button>
+</div>
+
+<!-- ============================================================
+     Screen: Order Input（オーダー入力 - 従来通り）
      ============================================================ -->
 <div class="screen" id="screenOrder">
   <div class="top-bar">
     <button class="back-btn" onclick="goBack()">←</button>
-    <h1>オーダー提出</h1>
+    <h1>オーダー入力</h1>
     <span class="team-badge" id="ordTeamBadge"></span>
   </div>
-  <div class="order-header" id="orderHeader"></div>
-
-  <div class="roster-pool" id="rosterPool">
+  
+  <div class="match-info-card">
+    <div class="meta">
+      <span id="ordRound"></span>
+      <span class="court-badge" id="ordCourt"></span>
+    </div>
+    <div class="matchup">
+      <span id="ordTeamA"></span>
+      <span class="vs-label">対</span>
+      <span id="ordTeamB"></span>
+    </div>
+  </div>
+  
+  <div class="roster-pool">
     <h4>📋 登録メンバー</h4>
     <div class="roster-tags" id="rosterTags"></div>
   </div>
-
-  <!-- 第1マッチ -->
+  
   <div class="match-group" id="matchGroup1">
     <div class="match-group-title"><span class="match-num">1</span>第1マッチ</div>
     <div class="slot-row"><div class="slot-label">A</div><select class="slot-select" id="slot_0" onchange="onSlotChange()"><option value="">-- 選手を選択 --</option></select></div>
     <div class="slot-row"><div class="slot-label">B</div><select class="slot-select" id="slot_1" onchange="onSlotChange()"><option value="">-- 選手を選択 --</option></select></div>
   </div>
-
-  <!-- 第2マッチ -->
+  
   <div class="match-group" id="matchGroup2">
     <div class="match-group-title"><span class="match-num">2</span>第2マッチ</div>
     <div class="slot-row"><div class="slot-label">A</div><select class="slot-select" id="slot_2" onchange="onSlotChange()"><option value="">-- 選手を選択 --</option></select></div>
     <div class="slot-row"><div class="slot-label">B</div><select class="slot-select" id="slot_3" onchange="onSlotChange()"><option value="">-- 選手を選択 --</option></select></div>
   </div>
-
-  <!-- 第3マッチ -->
+  
   <div class="match-group" id="matchGroup3">
     <div class="match-group-title">
       <span class="match-num">3</span>第3マッチ
@@ -440,9 +616,116 @@ body {
     <div class="slot-row"><div class="slot-label">A</div><select class="slot-select" id="slot_4" onchange="onSlotChange()"><option value="">-- 選手を選択 --</option></select></div>
     <div class="slot-row"><div class="slot-label">B</div><select class="slot-select" id="slot_5" onchange="onSlotChange()"><option value="">-- 選手を選択 --</option></select></div>
   </div>
-
-  <button class="btn btn-primary" id="orderSubmitBtn" onclick="submitOrder()" disabled>オーダーを送信</button>
+  
+  <button class="btn btn-primary btn-large mt-16" id="orderSubmitBtn" onclick="confirmSubmitOrder()" disabled>オーダーを送信</button>
   <p class="text-sm text-center mt-12" id="orderDeadlineMsg"></p>
+</div>
+
+<!-- ============================================================
+     Screen: PostOrder（オーダー送信完了）
+     ============================================================ -->
+<div class="screen" id="screenPostOrder">
+  <div class="top-bar">
+    <h1>オーダー提出完了</h1>
+    <span class="team-badge" id="postOrderTeamBadge"></span>
+  </div>
+  
+  <div id="postOrderProgressBar"></div>
+  
+  <div class="complete-card">
+    <div class="big-check">✅</div>
+    <h2>オーダー提出完了</h2>
+    <div class="match-info" id="postOrderMatchInfo"></div>
+    <div class="call-info" id="postOrderCallInfo">
+      <div class="label">召集所集合時刻</div>
+      <div class="time" id="postOrderCallTime">--:--</div>
+    </div>
+    <div class="message">
+      オーダーを受け付けました。<br>
+      選手たちがコートでこれまでの成果をすべて出し切れるよう、<br>
+      大会役員一同、応援しております。
+    </div>
+  </div>
+  
+  <div id="postOrderButtons"></div>
+</div>
+
+<!-- ============================================================
+     Screen: ViewOrder（提出済オーダー確認）
+     ============================================================ -->
+<div class="screen" id="screenViewOrder">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <h1>提出済オーダー確認</h1>
+    <span class="team-badge" id="viewOrderTeamBadge"></span>
+  </div>
+  
+  <div id="viewOrderProgressBar"></div>
+  
+  <div class="match-info-card">
+    <div class="meta">
+      <span id="viewOrderRound"></span>
+      <span class="court-badge" id="viewOrderCourt"></span>
+    </div>
+    <div class="matchup">
+      <span id="viewOrderTeamA"></span>
+      <span class="vs-label">対</span>
+      <span id="viewOrderTeamB"></span>
+    </div>
+  </div>
+  
+  <div class="submitted-order" id="submittedOrderDisplay"></div>
+  
+  <div id="viewOrderButtons"></div>
+</div>
+
+<!-- ============================================================
+     Screen: Waiting（次戦待機）
+     ============================================================ -->
+<div class="screen" id="screenWaiting">
+  <div class="top-bar">
+    <h1>次戦待機</h1>
+    <span class="team-badge" id="waitTeamBadge"></span>
+  </div>
+  
+  <div id="waitProgressBar"></div>
+  
+  <div class="waiting-card">
+    <div class="icon">⏳</div>
+    <h2 id="waitTitle">次戦の準備中です</h2>
+    <p id="waitMessage">対戦相手・召集時刻が確定するまでしばらくお待ちください。</p>
+    <p class="auto-refresh">画面は自動的に更新されます</p>
+  </div>
+  
+  <div class="clock-display">
+    <div class="label">現在時刻</div>
+    <div class="time" id="waitClock">--:--</div>
+  </div>
+  
+  <button class="btn btn-secondary mt-16" onclick="manualRefresh()">手動で更新</button>
+</div>
+
+<!-- ============================================================
+     Screen: AllDone（全試合完了）
+     ============================================================ -->
+<div class="screen" id="screenAllDone">
+  <div class="top-bar">
+    <h1>大会終了</h1>
+    <span class="team-badge" id="allDoneTeamBadge"></span>
+  </div>
+  
+  <div id="allDoneProgressBar"></div>
+  
+  <div class="complete-card mt-16">
+    <div class="big-check">🏆</div>
+    <h2>すべての試合のオーダー提出完了</h2>
+    <div class="message" style="margin-top:20px;">
+      お疲れさまでした。<br>
+      選手の皆さんの健闘をお祈りいたします。
+    </div>
+  </div>
+  
+  <button class="btn btn-secondary mt-24" onclick="doLogout()">ログアウト</button>
 </div>
 
 <!-- ============================================================
@@ -454,24 +737,53 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzaMlWM2GdU7hhTUN1ArXX-
 const state = {
   teamName: "",
   teamRosters: {},
-  tasks: [],
+  tasks: [],         // 自チーム全試合（リーグ1〜3戦目）
+  currentRoundIndex: 0,  // 0=1戦目, 1=2戦目, 2=3戦目
   currentTask: null,
   currentRoster: [],
-  screenHistory: []
+  isArrived: false,
+  arrivalTime: '',
+  modalCallback: null,
+  waitingPollerId: null,
+  clockTimerId: null
+};
+
+const ROUND_LABELS = ['リーグ1戦目', 'リーグ2戦目', 'リーグ3戦目'];
+
+// ============================================================
+// Clock（現在時刻リアルタイム更新）
+// ============================================================
+const startClock = () => {
+  const update = () => {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const ss = String(now.getSeconds()).padStart(2,'0');
+    const text = `${hh}:${mm}:${ss}`;
+    ['arrClock', 'preOrderClock', 'waitClock'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    });
+  };
+  update();
+  if (state.clockTimerId) clearInterval(state.clockTimerId);
+  state.clockTimerId = setInterval(update, 1000);
 };
 
 // ============================================================
 // Screen Navigation
 // ============================================================
+const screenHistory = [];
 const showScreen = (id) => {
   const current = document.querySelector('.screen.active');
-  if (current && current.id !== id) state.screenHistory.push(current.id);
+  if (current && current.id !== id) screenHistory.push(current.id);
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
+  stopWaitingPoller();  // 画面遷移時はpoller停止
 };
 const goBack = () => {
-  const prev = state.screenHistory.pop();
+  const prev = screenHistory.pop();
   if (prev) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(prev).classList.add('active');
@@ -480,7 +792,7 @@ const goBack = () => {
 };
 
 // ============================================================
-// Loading & Toast
+// Loading / Toast / Modal
 // ============================================================
 const showLoading = (msg = "読み込み中...") => {
   document.getElementById('loadingMsg').textContent = msg;
@@ -492,6 +804,20 @@ const showToast = (msg, type = "success") => {
   el.textContent = msg;
   el.className = `toast ${type} show`;
   setTimeout(() => el.classList.remove('show'), 2800);
+};
+const openModal = (title, body, onOk) => {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = body;
+  state.modalCallback = onOk;
+  document.getElementById('modalOkBtn').onclick = () => {
+    closeModal();
+    if (state.modalCallback) state.modalCallback();
+  };
+  document.getElementById('modalBackdrop').classList.add('show');
+};
+const closeModal = () => {
+  document.getElementById('modalBackdrop').classList.remove('show');
+  state.modalCallback = null;
 };
 
 // ============================================================
@@ -516,6 +842,72 @@ const apiPost = async (payload) => {
 };
 
 // ============================================================
+// 進行ステータスバー
+// ============================================================
+const renderProgressBar = (containerId, currentStep) => {
+  // currentStep: 'arrival' | 'round1' | 'round2' | 'round3' | 'done'
+  const steps = [
+    { key: 'arrival', label: '到着', icon: '📍' },
+    { key: 'round1', label: '1戦目', icon: '1' },
+    { key: 'round2', label: '2戦目', icon: '2' },
+    { key: 'round3', label: '3戦目', icon: '3' }
+  ];
+  
+  const stepOrder = ['arrival', 'round1', 'round2', 'round3'];
+  const currentIdx = stepOrder.indexOf(currentStep);
+  
+  let html = '<div class="progress-bar">';
+  steps.forEach((s, i) => {
+    let cls = 'pending';
+    if (currentStep === 'done') {
+      cls = 'done';
+    } else if (i < currentIdx) {
+      cls = 'done';
+    } else if (i === currentIdx) {
+      cls = 'current';
+    }
+    
+    html += `<div class="progress-step ${cls}">
+      <div class="icon">${cls === 'done' ? '✓' : s.icon}</div>
+      <div class="label">${s.label}</div>
+    </div>`;
+    
+    if (i < steps.length - 1) {
+      const connDone = (currentStep === 'done' || i < currentIdx);
+      html += `<div class="progress-connector ${connDone ? 'done' : ''}"></div>`;
+    }
+  });
+  html += '</div>';
+  
+  document.getElementById(containerId).innerHTML = html;
+};
+
+// ============================================================
+// Deadline Warning（締切まで残り時間に応じて警告レベル）
+// ============================================================
+const updateDeadlineCard = (cardId, deadlineStr) => {
+  const card = document.getElementById(cardId);
+  if (!card || !deadlineStr) return;
+  
+  card.classList.remove('warn', 'danger');
+  
+  const now = new Date();
+  const [hh, mm] = deadlineStr.split(':').map(Number);
+  if (isNaN(hh) || isNaN(mm)) return;
+  
+  const deadline = new Date();
+  deadline.setHours(hh, mm, 0, 0);
+  
+  const diffMin = (deadline - now) / 60000;
+  
+  if (diffMin < 0) {
+    card.classList.add('danger');
+  } else if (diffMin <= 5) {
+    card.classList.add('warn');
+  }
+};
+
+// ============================================================
 // Login
 // ============================================================
 const doLogin = async () => {
@@ -529,162 +921,143 @@ const doLogin = async () => {
     const data = await apiGet('login', { code });
     if (data.error) { errEl.textContent = data.error; hideLoading(); return; }
     state.teamName = data.teamName;
-    await loadHome();
+    await loadDashboard();
     hideLoading();
-    showScreen('screenHome');
+    startClock();
+    navigateToProperScreen();
   } catch (err) {
     hideLoading();
     errEl.textContent = "通信エラー: " + err.message;
   }
 };
+
 const doLogout = () => {
   state.teamName = "";
   state.teamRosters = {};
   state.tasks = [];
-  state.screenHistory = [];
+  state.currentRoundIndex = 0;
+  state.isArrived = false;
+  state.arrivalTime = '';
+  screenHistory.length = 0;
+  stopWaitingPoller();
+  if (state.clockTimerId) clearInterval(state.clockTimerId);
   document.getElementById('loginCode').value = "";
   showScreen('screenLogin');
 };
+
 document.getElementById('loginCode').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') doLogin();
 });
 
 // ============================================================
-// 受付確認画面
+// Load Dashboard（DBから最新データ取得）
 // ============================================================
-const loadHome = async () => {
+const loadDashboard = async () => {
   const data = await apiGet('getDashboardData', { teamName: state.teamName });
-  if (data.error) {
-    showToast("データ取得エラー: " + data.error, "error");
-    return;
-  }
+  if (data.error) throw new Error(data.error);
+  
   state.teamRosters = data.teamRosters || {};
-  state.tasks = data.tasks || [];
-  renderHome();
-};
-
-const renderHome = () => {
-  document.getElementById('homeTeamBadge').textContent = state.teamName;
-
-  // ペンディング = 到着前 OR オーダー未提出
-  const pending = state.tasks.filter(t => !t.isArrived || !t.hasOrder);
-  const done = state.tasks.filter(t => t.isArrived && t.hasOrder);
-
-  document.getElementById('pendingCount').textContent = pending.length;
-  document.getElementById('doneCount').textContent = done.length;
-
-  const pendingContainer = document.getElementById('pendingList');
-  const doneContainer = document.getElementById('doneList');
-
-  pendingContainer.innerHTML = pending.length === 0
-    ? '<div class="empty-state"><p>すべて完了しています</p></div>'
-    : pending.map(task => renderTaskCard(task, state.tasks.indexOf(task))).join('');
-
-  doneContainer.innerHTML = done.length === 0
-    ? '<div class="empty-state"><p>まだオーダー提出済の試合はありません</p></div>'
-    : done.map(task => renderTaskCard(task, state.tasks.indexOf(task))).join('');
-
-  const now = new Date().toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
-  document.getElementById('lastUpdated').textContent = `最終更新: ${now}`;
-};
-
-const renderTaskCard = (task, globalIndex) => {
-  let pillClass, pillText, statusClass;
-  if (!task.isArrived) {
-    pillClass = "pending"; pillText = "受付前"; statusClass = "pending";
-  } else if (!task.hasOrder) {
-    pillClass = "pending"; pillText = "オーダー未提出"; statusClass = "pending";
-  } else {
-    pillClass = "ordered"; pillText = "オーダー提出済"; statusClass = "ordered";
+  // 自チームの試合をリーグ戦順にソート
+  const allTasks = data.tasks || [];
+  const sortedTasks = ROUND_LABELS.map(label => {
+    return allTasks.find(t => t.round === label);
+  });
+  state.tasks = sortedTasks;  // [1戦目, 2戦目, 3戦目]
+  
+  // 到着済かを判定
+  state.isArrived = state.tasks.some(t => t && t.isArrived);
+  
+  // 現在進行中の試合インデックスを判定
+  state.currentRoundIndex = 0;
+  for (let i = 0; i < 3; i++) {
+    const t = state.tasks[i];
+    if (!t || !t.hasOrder) {
+      state.currentRoundIndex = i;
+      return;
+    }
   }
-
-  const timeInfo = (task.deadline || task.callTime) ? `
-    <div class="time-info">
-      ${task.deadline ? `<span class="label">締切</span>${task.deadline}` : ''}
-      ${task.callTime ? `&nbsp;<span class="label">召集</span>${task.callTime}` : ''}
-    </div>
-  ` : '';
-
-  return `
-    <div class="task-card ${statusClass}" onclick="onTaskSelect(${globalIndex})">
-      <div class="match-id">${task.matchId} <span class="court-label">コート ${task.court}</span></div>
-      <div class="round-label">${task.round}</div>
-      <div class="matchup">${task.entityName}<span class="vs">vs</span>${task.opponent}</div>
-      ${timeInfo}
-      <span class="status-pill ${pillClass}">${pillText}</span>
-      <span class="arrow-icon">›</span>
-    </div>`;
+  state.currentRoundIndex = 3;  // 全試合提出済み
 };
 
 // ============================================================
-// Task Selection
+// 状態に応じた画面選択
 // ============================================================
-const onTaskSelect = (index) => {
-  const task = state.tasks[index];
-  state.currentTask = task;
-
-  if (task.opponent === '未定' || !task.opponent) {
-    showToast("対戦相手が未定です", "error");
+const navigateToProperScreen = () => {
+  // 全試合提出済み
+  if (state.currentRoundIndex >= 3) {
+    showAllDoneScreen();
     return;
   }
-
-  if (!task.isArrived) {
-    // 到着未済 → 到着受付画面へ
-    renderArrivalScreen(task);
-    showScreen('screenArrival');
+  
+  const currentTask = state.tasks[state.currentRoundIndex];
+  
+  // タスクが取得できない（対戦相手未確定など）
+  if (!currentTask) {
+    showWaitingScreen();
     return;
   }
-
-  // 到着済み → オーダー画面（提出済でも修正可能）
-  renderOrderScreen(task);
-  showScreen('screenOrder');
+  
+  state.currentTask = currentTask;
+  
+  // 到着未済
+  if (!state.isArrived) {
+    showArrivalScreen();
+    return;
+  }
+  
+  // 到着済 → オーダー提出前画面
+  showPreOrderScreen();
 };
 
 // ============================================================
-// Arrival
+// Screen: Arrival（到着受付）
 // ============================================================
-const renderArrivalScreen = (task) => {
-  document.getElementById('arrTeamBadge').textContent = task.entityName;
-  document.getElementById('arrivalDetail').innerHTML = `
-    <div class="row"><span class="label">試合ID</span><span class="value">${task.matchId}</span></div>
-    <div class="row"><span class="label">試合区分</span><span class="value">${task.round}</span></div>
-    <div class="row"><span class="label">コート</span><span class="value">${task.court}</span></div>
-    <div class="row"><span class="label">対戦相手</span><span class="value">${task.opponent}</span></div>
-    ${task.callTime ? `<div class="row"><span class="label">召集時刻</span><span class="value">${task.callTime}</span></div>` : ''}
-  `;
-  document.getElementById('arrivalBtn').disabled = false;
+const showArrivalScreen = () => {
+  document.getElementById('arrTeamBadge').textContent = state.teamName;
+  renderProgressBar('arrProgressBar', 'arrival');
+  
+  // 1戦目情報から召集時刻を取得（参考情報）
+  const round1 = state.tasks[0];
+  let deadlineStr = '';
+  if (round1 && round1.callTime) {
+    deadlineStr = `<span class="time-em">${round1.callTime}</span>までに到着受付を完了してください`;
+  } else if (round1 && round1.deadline) {
+    deadlineStr = `<span class="time-em">${round1.deadline}</span>までに到着受付を完了してください`;
+  }
+  document.getElementById('arrDeadlineInfo').innerHTML = deadlineStr;
+  
+  // 締切警告
+  if (round1 && round1.callTime) {
+    updateDeadlineCard('arrMessageCard', round1.callTime);
+  }
+  
+  showScreen('screenArrival');
 };
 
 const submitArrival = async () => {
-  const task = state.currentTask;
-  if (!task) return;
+  const currentTask = state.currentTask;
+  if (!currentTask) return;
 
   showLoading("受付処理中...");
   try {
     const result = await apiPost({
       type: "SUBMIT_ARRIVAL",
-      matchId: task.matchId,
-      entityName: task.entityName
+      matchId: currentTask.matchId,
+      entityName: state.teamName
     });
     if (result.error) throw new Error(result.error);
+    
+    state.isArrived = true;
+    state.arrivalTime = result.arrivalTime || formatTimeNow();
     
     hideLoading();
     showToast("到着受付が完了しました");
     
     setTimeout(async () => {
       showLoading("更新中...");
-      await loadHome();
+      await loadDashboard();
       hideLoading();
-      // 続けてオーダー画面へ
-      const updatedTask = state.tasks.find(t => t.matchId === task.matchId);
-      if (updatedTask && updatedTask.isArrived) {
-        state.currentTask = updatedTask;
-        renderOrderScreen(updatedTask);
-        showScreen('screenOrder');
-      } else {
-        state.screenHistory = [];
-        showScreen('screenHome');
-      }
+      showPreOrderScreen();
     }, 800);
   } catch (err) {
     hideLoading();
@@ -692,35 +1065,81 @@ const submitArrival = async () => {
   }
 };
 
-// ============================================================
-// Order
-// ============================================================
-const renderOrderScreen = (task) => {
-  document.getElementById('ordTeamBadge').textContent = task.entityName;
-  document.getElementById('orderHeader').innerHTML = `
-    <div class="match-label">${task.matchId}　${task.round}<span class="court-tag">コート ${task.court}</span></div>
-    <div class="match-title">${task.entityName} vs ${task.opponent}</div>
-  `;
+const formatTimeNow = () => {
+  const now = new Date();
+  return `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+};
 
-  const roster = state.teamRosters[task.entityName] || [];
+// ============================================================
+// Screen: PreOrder（オーダー提出前）
+// ============================================================
+const showPreOrderScreen = () => {
+  const task = state.currentTask;
+  const roundIdx = state.currentRoundIndex;
+  
+  // 2戦目・3戦目で対戦相手未定なら待機画面
+  if (!task || !task.opponent || task.opponent === '未定') {
+    showWaitingScreen();
+    return;
+  }
+  
+  document.getElementById('preOrderTeamBadge').textContent = state.teamName;
+  document.getElementById('preOrderTitle').textContent = `${task.round}オーダー提出`;
+  renderProgressBar('preOrderProgressBar', `round${roundIdx + 1}`);
+  
+  // 到着受付済バッジ
+  const arrTime = state.arrivalTime || '済';
+  document.getElementById('arrivalStatusBadge').innerHTML = `✓ 到着受付済 ${arrTime !== '済' ? '(' + arrTime + ')' : ''}`;
+  
+  document.getElementById('preOrderMainMsg').textContent = `${task.round}のオーダーを提出してください`;
+  
+  if (task.deadline) {
+    document.getElementById('preOrderDeadlineInfo').innerHTML = 
+      `オーダー締切: <span class="time-em">${task.deadline}</span>`;
+    updateDeadlineCard('preOrderMessageCard', task.deadline);
+  } else {
+    document.getElementById('preOrderDeadlineInfo').innerHTML = '';
+  }
+  
+  document.getElementById('preOrderRound').textContent = task.round;
+  document.getElementById('preOrderCourt').textContent = `コート ${task.court}`;
+  document.getElementById('preOrderTeamA').textContent = state.teamName;
+  document.getElementById('preOrderTeamB').textContent = task.opponent;
+  
+  showScreen('screenPreOrder');
+};
+
+const goToOrderInput = () => {
+  renderOrderInputScreen(state.currentTask);
+  showScreen('screenOrder');
+};
+
+// ============================================================
+// Screen: Order Input
+// ============================================================
+const renderOrderInputScreen = (task) => {
+  document.getElementById('ordTeamBadge').textContent = state.teamName;
+  document.getElementById('ordRound').textContent = task.round;
+  document.getElementById('ordCourt').textContent = `コート ${task.court}`;
+  document.getElementById('ordTeamA').textContent = state.teamName;
+  document.getElementById('ordTeamB').textContent = task.opponent;
+  
+  const roster = state.teamRosters[state.teamName] || [];
   state.currentRoster = roster;
 
   document.getElementById('rosterTags').innerHTML =
     roster.map(p => `<span class="roster-tag" data-name="${p}">${p}</span>`).join('');
 
-  // セレクト初期化
   for (let s = 0; s < 6; s++) {
     const sel = document.getElementById(`slot_${s}`);
     sel.value = "";
     sel.classList.remove('filled');
     sel.disabled = false;
   }
-
   document.getElementById('openCheck').checked = false;
   document.getElementById('matchGroup3').classList.remove('open-match');
-
   rebuildAllSelects();
-
+  
   document.getElementById('orderDeadlineMsg').textContent = task.deadline 
     ? `⏰ オーダー締切: ${task.deadline}` 
     : '';
@@ -732,18 +1151,13 @@ const rebuildAllSelects = () => {
   for (let s = 0; s < 6; s++) {
     currentValues.push(document.getElementById(`slot_${s}`).value);
   }
-
   const roster = state.currentRoster;
-
   for (let s = 0; s < 6; s++) {
     const sel = document.getElementById(`slot_${s}`);
     if (sel.disabled) continue;
-
     const myValue = currentValues[s];
     const usedByOthers = currentValues.filter((v, i) => v && i !== s);
-
     sel.innerHTML = '<option value="">-- 選手を選択 --</option>';
-
     roster.forEach(p => {
       const isUsed = usedByOthers.includes(p);
       if (!isUsed || p === myValue) {
@@ -754,29 +1168,20 @@ const rebuildAllSelects = () => {
         sel.appendChild(opt);
       }
     });
-
     sel.classList.toggle('filled', !!myValue);
   }
-
   const allSelected = currentValues.filter(v => v);
   document.querySelectorAll('.roster-tag').forEach(tag => {
     tag.classList.toggle('used', allSelected.includes(tag.dataset.name));
   });
 };
 
-const onSlotChange = () => {
-  rebuildAllSelects();
-  validateOrder();
-};
-
+const onSlotChange = () => { rebuildAllSelects(); validateOrder(); };
 const onOpenChange = () => {
   const checked = document.getElementById('openCheck').checked;
-  const group3 = document.getElementById('matchGroup3');
-
   document.getElementById('slot_4').disabled = checked;
   document.getElementById('slot_5').disabled = checked;
-  group3.classList.toggle('open-match', checked);
-
+  document.getElementById('matchGroup3').classList.toggle('open-match', checked);
   if (checked) {
     document.getElementById('slot_4').value = "";
     document.getElementById('slot_5').value = "";
@@ -792,51 +1197,280 @@ const validateOrder = () => {
   const maxSlot = isOpen ? 4 : 6;
   let filled = 0;
   for (let s = 0; s < maxSlot; s++) {
-    const val = document.getElementById(`slot_${s}`).value;
-    if (val) filled++;
+    if (document.getElementById(`slot_${s}`).value) filled++;
   }
   document.getElementById('orderSubmitBtn').disabled = (filled !== maxSlot);
 };
 
-const submitOrder = async () => {
-  const task = state.currentTask;
-  if (!task) return;
-
+const confirmSubmitOrder = () => {
   const isOpen = document.getElementById('openCheck').checked;
   const order = [];
   for (let s = 0; s < 6; s++) {
-    if (isOpen && s >= 4) {
-      order.push("オープン");
-    } else {
-      order.push(document.getElementById(`slot_${s}`).value);
-    }
+    if (isOpen && s >= 4) order.push("オープン");
+    else order.push(document.getElementById(`slot_${s}`).value);
   }
+  
+  const bodyHtml = `
+    <div style="background:#f5f5f5;padding:12px;border-radius:8px;margin-bottom:10px;">
+      <div style="margin-bottom:8px;"><strong>第1マッチ</strong><br>
+        A: ${order[0]}　B: ${order[1]}</div>
+      <div style="margin-bottom:8px;"><strong>第2マッチ</strong><br>
+        A: ${order[2]}　B: ${order[3]}</div>
+      <div><strong>第3マッチ</strong><br>
+        A: ${order[4]}　B: ${order[5]}</div>
+    </div>
+    <p>以下のオーダーで送信しますか？</p>
+  `;
+  openModal('オーダー送信の確認', bodyHtml, () => submitOrder(order));
+};
 
+const submitOrder = async (order) => {
+  const task = state.currentTask;
+  if (!task) return;
+  
   showLoading("オーダー送信中...");
   try {
     const result = await apiPost({
       type: "SUBMIT_ORDER",
       matchId: task.matchId,
-      entityName: task.entityName,
+      entityName: state.teamName,
       order: order
     });
     if (result.error) throw new Error(result.error);
     
     hideLoading();
     showToast(result.updated ? "オーダーを更新しました" : "オーダーを送信しました");
-
+    
     setTimeout(async () => {
       showLoading("更新中...");
-      await loadHome();
+      await loadDashboard();
       hideLoading();
-      state.screenHistory = [];
-      showScreen('screenHome');
+      showPostOrderScreen();
     }, 800);
   } catch (err) {
     hideLoading();
     showToast("通信エラー: " + err.message, "error");
   }
 };
+
+// ============================================================
+// Screen: PostOrder（オーダー送信完了）
+// ============================================================
+const showPostOrderScreen = () => {
+  const roundIdx = state.currentRoundIndex;
+  const task = state.tasks[roundIdx];
+  
+  document.getElementById('postOrderTeamBadge').textContent = state.teamName;
+  renderProgressBar('postOrderProgressBar', `round${roundIdx + 1}`);
+  
+  document.getElementById('postOrderMatchInfo').innerHTML = 
+    `${task.round}　対 ${task.opponent}`;
+  
+  if (task.callTime) {
+    document.getElementById('postOrderCallTime').textContent = task.callTime;
+    document.getElementById('postOrderCallInfo').style.display = 'block';
+  } else {
+    document.getElementById('postOrderCallInfo').style.display = 'none';
+  }
+  
+  // ボタン配置
+  const btnContainer = document.getElementById('postOrderButtons');
+  if (roundIdx >= 2) {
+    // 3戦目完了 → [提出済確認]のみ
+    btnContainer.innerHTML = `
+      <button class="btn btn-primary btn-large mt-16" onclick="showViewOrderScreen(${roundIdx})">提出済のオーダーを確認する</button>
+    `;
+  } else {
+    // 1〜2戦目完了 → 次戦オーダー + 提出済確認
+    btnContainer.innerHTML = `
+      <button class="btn btn-primary btn-large mt-16" onclick="proceedToNextRound()">${roundIdx === 0 ? '2' : '3'}試合目のオーダー提出画面へ</button>
+      <button class="btn btn-secondary mt-12" onclick="showViewOrderScreen(${roundIdx})">提出済のオーダーを確認する</button>
+    `;
+  }
+  
+  state.currentRoundIndex = roundIdx + 1;
+  showScreen('screenPostOrder');
+};
+
+const proceedToNextRound = async () => {
+  showLoading("次戦情報を取得中...");
+  await loadDashboard();
+  hideLoading();
+  navigateToProperScreen();
+};
+
+// ============================================================
+// Screen: ViewOrder（提出済オーダー確認）
+// ============================================================
+const showViewOrderScreen = async (roundIdx) => {
+  showLoading("オーダー取得中...");
+  await loadDashboard();
+  hideLoading();
+  
+  const task = state.tasks[roundIdx];
+  if (!task) {
+    showToast("該当試合が見つかりません", "error");
+    return;
+  }
+  
+  document.getElementById('viewOrderTeamBadge').textContent = state.teamName;
+  renderProgressBar('viewOrderProgressBar', `round${roundIdx + 1}`);
+  
+  document.getElementById('viewOrderRound').textContent = task.round;
+  document.getElementById('viewOrderCourt').textContent = `コート ${task.court}`;
+  document.getElementById('viewOrderTeamA').textContent = state.teamName;
+  document.getElementById('viewOrderTeamB').textContent = task.opponent;
+  
+  // 提出済オーダー取得（getDashboardDataには含まれないので、別途取得が必要）
+  await renderSubmittedOrder(task, roundIdx);
+  
+  // ボタン配置
+  const btnContainer = document.getElementById('viewOrderButtons');
+  if (roundIdx >= 2) {
+    // 3戦目 → [ログアウト]のみ
+    btnContainer.innerHTML = `
+      <button class="btn btn-secondary mt-16" onclick="doLogout()">ログアウト</button>
+    `;
+  } else {
+    // 1〜2戦目 → [次戦のオーダー提出]
+    btnContainer.innerHTML = `
+      <button class="btn btn-primary btn-large mt-16" onclick="proceedToNextRoundFromView()">${roundIdx === 0 ? '2' : '3'}試合目のオーダーを提出する</button>
+    `;
+  }
+  
+  showScreen('screenViewOrder');
+};
+
+const proceedToNextRoundFromView = async () => {
+  state.currentRoundIndex++;
+  await proceedToNextRound();
+};
+
+const renderSubmittedOrder = async (task, roundIdx) => {
+  // 提出済みオーダーを別エンドポイントで取得
+  try {
+    const data = await apiGet('getOrder', { 
+      matchId: task.matchId, 
+      teamName: state.teamName 
+    });
+    
+    const display = document.getElementById('submittedOrderDisplay');
+    
+    if (data.error || !data.order || data.order.length === 0) {
+      display.innerHTML = '<p class="text-sm text-center">オーダーが見つかりません</p>';
+      return;
+    }
+    
+    const order = data.order;  // [{matchNum, slot, playerName, isOpen}]
+    const byMatch = { 1: {}, 2: {}, 3: {} };
+    order.forEach(o => {
+      byMatch[o.matchNum][o.slot] = { name: o.playerName, isOpen: o.isOpen };
+    });
+    
+    let html = '';
+    [1, 2, 3].forEach(mn => {
+      const a = byMatch[mn]['A'] || {};
+      const b = byMatch[mn]['B'] || {};
+      const aOpen = a.isOpen ? 'open' : '';
+      const bOpen = b.isOpen ? 'open' : '';
+      html += `
+        <div class="match-row">
+          <div class="match-no">第${mn}マッチ</div>
+          <div class="players">
+            <div class="player ${aOpen}"><span class="slot">A</span>${a.name || '—'}</div>
+            <div class="player ${bOpen}"><span class="slot">B</span>${b.name || '—'}</div>
+          </div>
+        </div>
+      `;
+    });
+    
+    if (task.callTime) {
+      html += `
+        <div class="footer-info">
+          召集所集合時刻: <span class="call-time">${task.callTime}</span>
+        </div>
+      `;
+    }
+    
+    display.innerHTML = html;
+  } catch (err) {
+    document.getElementById('submittedOrderDisplay').innerHTML = 
+      '<p class="text-sm text-center">取得エラー: ' + err.message + '</p>';
+  }
+};
+
+// ============================================================
+// Screen: Waiting（次戦待機）
+// ============================================================
+const showWaitingScreen = () => {
+  const roundIdx = state.currentRoundIndex;
+  document.getElementById('waitTeamBadge').textContent = state.teamName;
+  renderProgressBar('waitProgressBar', `round${roundIdx + 1}`);
+  document.getElementById('waitTitle').textContent = 
+    `${ROUND_LABELS[roundIdx]}の準備中です`;
+  document.getElementById('waitMessage').textContent = 
+    '対戦相手・召集時刻が確定するまでしばらくお待ちください。';
+  
+  startWaitingPoller();
+  showScreen('screenWaiting');
+};
+
+const startWaitingPoller = () => {
+  stopWaitingPoller();
+  state.waitingPollerId = setInterval(async () => {
+    try {
+      await loadDashboard();
+      const task = state.tasks[state.currentRoundIndex];
+      if (task && task.opponent && task.opponent !== '未定') {
+        stopWaitingPoller();
+        showPreOrderScreen();
+      }
+    } catch (err) {
+      // エラー時は次のpollに任せる
+    }
+  }, 15000);  // 15秒ごとに更新
+};
+
+const stopWaitingPoller = () => {
+  if (state.waitingPollerId) {
+    clearInterval(state.waitingPollerId);
+    state.waitingPollerId = null;
+  }
+};
+
+const manualRefresh = async () => {
+  showLoading("更新中...");
+  try {
+    await loadDashboard();
+    hideLoading();
+    navigateToProperScreen();
+  } catch (err) {
+    hideLoading();
+    showToast("更新エラー: " + err.message, "error");
+  }
+};
+
+// ============================================================
+// Screen: AllDone（全試合完了）
+// ============================================================
+const showAllDoneScreen = () => {
+  document.getElementById('allDoneTeamBadge').textContent = state.teamName;
+  renderProgressBar('allDoneProgressBar', 'done');
+  showScreen('screenAllDone');
+};
+
+// ============================================================
+// 締切警告の定期更新（10秒ごと）
+// ============================================================
+setInterval(() => {
+  // 表示中の各画面のカードを更新
+  const task = state.currentTask;
+  if (task) {
+    if (task.callTime) updateDeadlineCard('arrMessageCard', task.callTime);
+    if (task.deadline) updateDeadlineCard('preOrderMessageCard', task.deadline);
+  }
+}, 10000);
+
 </script>
 </body>
 </html>
