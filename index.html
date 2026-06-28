@@ -156,6 +156,19 @@ body.deadline-overdue .top-bar { top: 40px; }
 }
 .progress-step.done { color: var(--c-success); }
 .progress-step.done .icon { background: var(--c-success); color: #fff; }
+.progress-step.done[onclick]:hover .icon {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 3px rgba(46,125,50,0.2);
+}
+.progress-step.done[onclick] {
+  transition: transform .15s;
+}
+.progress-step.done[onclick]:active {
+  transform: scale(0.92);
+}
+.progress-step.done[onclick] .icon {
+  transition: all .15s;
+}
 .progress-step.current { color: var(--c-accent2); font-weight: 700; }
 .progress-step.current .icon { background: var(--c-accent2); color: #fff; box-shadow: 0 0 0 3px var(--c-accent2-light); }
 .progress-step.pending .icon { background: var(--c-surface2); color: var(--c-text2); }
@@ -327,6 +340,35 @@ body[data-gender="女子"] .btn-primary { box-shadow: 0 4px 12px rgba(163,33,107
 }
 
 /* ============================================================
+   召集時刻 強調カード（ユーザー目線で最も重要な情報）
+   ============================================================ */
+.call-time-card {
+  background: linear-gradient(135deg, var(--c-accent), var(--c-accent2));
+  color: #fff; border-radius: var(--r-lg);
+  padding: 16px 20px; margin: 12px 0;
+  box-shadow: var(--shadow-md);
+  display: flex; align-items: center; gap: 14px;
+}
+.call-time-card .icon {
+  font-size: 32px; flex-shrink: 0;
+}
+.call-time-card .content { flex: 1; }
+.call-time-card .label {
+  font-size: 12px; font-weight: 600; opacity: 0.9;
+  letter-spacing: 1px;
+}
+.call-time-card .time {
+  font-family: var(--font-en); font-size: 36px; font-weight: 900;
+  letter-spacing: 2px; line-height: 1;
+}
+.call-time-card.compact {
+  padding: 10px 14px;
+}
+.call-time-card.compact .icon { font-size: 22px; }
+.call-time-card.compact .label { font-size: 10px; }
+.call-time-card.compact .time { font-size: 24px; }
+
+/* ============================================================
    オーダー入力画面
    ============================================================ */
 .roster-pool {
@@ -446,14 +488,17 @@ body[data-gender="女子"] .btn-primary { box-shadow: 0 4px 12px rgba(163,33,107
 .complete-card h2 { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
 .complete-card .match-info { font-size: 14px; opacity: 0.95; }
 .complete-card .call-info {
-  background: rgba(255,255,255,0.20); border-radius: var(--r-md);
-  padding: 12px; margin-top: 14px;
+  background: rgba(255,255,255,0.25); border-radius: var(--r-md);
+  padding: 16px; margin-top: 16px;
   backdrop-filter: blur(4px);
+  border: 2px solid rgba(255,255,255,0.4);
 }
-.complete-card .call-info .label { font-size: 11px; opacity: 0.9; }
+.complete-card .call-info .label { font-size: 13px; font-weight: 700; opacity: 0.95; margin-bottom: 4px; }
+.complete-card .call-info .icon-row { font-size: 24px; margin-bottom: 2px; }
 .complete-card .call-info .time {
-  font-family: var(--font-en); font-size: 28px; font-weight: 900;
-  letter-spacing: 1px;
+  font-family: var(--font-en); font-size: 44px; font-weight: 900;
+  letter-spacing: 3px; line-height: 1;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 .complete-card .message {
   margin-top: 14px; font-size: 13px; line-height: 1.6;
@@ -619,6 +664,15 @@ body[data-gender="女子"] .btn-primary { box-shadow: 0 4px 12px rgba(163,33,107
     </div>
   </div>
   
+  <!-- 召集時刻カード（大きく表示） -->
+  <div class="call-time-card" id="preOrderCallTimeCard" style="display:none;">
+    <div class="icon">🔔</div>
+    <div class="content">
+      <div class="label">召集所集合時刻</div>
+      <div class="time" id="preOrderCallTimeValue">--:--</div>
+    </div>
+  </div>
+  
   <div class="clock-display">
     <div class="label">現在時刻</div>
     <div class="time" id="preOrderClock">--:--</div>
@@ -646,6 +700,15 @@ body[data-gender="女子"] .btn-primary { box-shadow: 0 4px 12px rgba(163,33,107
       <span id="ordTeamA"></span>
       <span class="vs-label">対</span>
       <span id="ordTeamB"></span>
+    </div>
+  </div>
+  
+  <!-- 召集時刻カード（コンパクト） -->
+  <div class="call-time-card compact" id="ordCallTimeCard" style="display:none;">
+    <div class="icon">🔔</div>
+    <div class="content">
+      <div class="label">召集所集合時刻</div>
+      <div class="time" id="ordCallTimeValue">--:--</div>
     </div>
   </div>
   
@@ -695,6 +758,7 @@ body[data-gender="女子"] .btn-primary { box-shadow: 0 4px 12px rgba(163,33,107
     <h2>オーダー提出完了</h2>
     <div class="match-info" id="postOrderMatchInfo"></div>
     <div class="call-info" id="postOrderCallInfo">
+      <div class="icon-row">🔔</div>
       <div class="label">召集所集合時刻</div>
       <div class="time" id="postOrderCallTime">--:--</div>
     </div>
@@ -729,6 +793,15 @@ body[data-gender="女子"] .btn-primary { box-shadow: 0 4px 12px rgba(163,33,107
       <span id="viewOrderTeamA"></span>
       <span class="vs-label">対</span>
       <span id="viewOrderTeamB"></span>
+    </div>
+  </div>
+  
+  <!-- 召集時刻カード（大きく表示） -->
+  <div class="call-time-card" id="viewOrderCallTimeCard" style="display:none;">
+    <div class="icon">🔔</div>
+    <div class="content">
+      <div class="label">召集所集合時刻</div>
+      <div class="time" id="viewOrderCallTimeValue">--:--</div>
     </div>
   </div>
   
@@ -866,16 +939,20 @@ const showToast = (msg, type = "success") => {
   el.className = `toast ${type} show`;
   setTimeout(() => el.classList.remove('show'), 2800);
 };
-const openModal = (title, body, onOk) => {
+const openModal = (title, body, onOk, infoOnly = false) => {
   document.getElementById('modalTitle').textContent = title;
   document.getElementById('modalBody').innerHTML = body;
   state.modalCallback = onOk;
   document.getElementById('modalOkBtn').onclick = () => {
-    // ★ バグ修正：closeModal前にコールバックを保存して呼ぶ
     const cb = state.modalCallback;
     closeModal();
     if (cb) cb();
   };
+  // 情報表示モードならキャンセルボタンを隠す
+  const cancelBtn = document.querySelector('#modalBackdrop .btn-secondary');
+  if (cancelBtn) cancelBtn.style.display = infoOnly ? 'none' : 'block';
+  // OKボタンのテキストも調整
+  document.getElementById('modalOkBtn').textContent = infoOnly ? '閉じる' : 'OK';
   document.getElementById('modalBackdrop').classList.add('show');
 };
 const closeModal = () => {
@@ -905,7 +982,7 @@ const apiPost = async (payload) => {
 };
 
 // ============================================================
-// 進行ステータスバー
+// 進行ステータスバー（クリック可能）
 // ============================================================
 const renderProgressBar = (containerId, currentStep) => {
   const steps = [
@@ -921,6 +998,8 @@ const renderProgressBar = (containerId, currentStep) => {
   let html = '<div class="progress-bar">';
   steps.forEach((s, i) => {
     let cls = 'pending';
+    let onclick = '';
+    
     if (currentStep === 'done') {
       cls = 'done';
     } else if (i < currentIdx) {
@@ -929,7 +1008,18 @@ const renderProgressBar = (containerId, currentStep) => {
       cls = 'current';
     }
     
-    html += `<div class="progress-step ${cls}">
+    // 完了済みの戦はクリック可能
+    if (cls === 'done') {
+      if (s.key === 'arrival') {
+        onclick = `onclick="showArrivalInfo()" style="cursor:pointer;"`;
+      } else {
+        // round1 → roundIdx = 0, round2 → 1, ...
+        const roundIdx = parseInt(s.key.replace('round', ''), 10) - 1;
+        onclick = `onclick="showViewOrderScreen(${roundIdx})" style="cursor:pointer;"`;
+      }
+    }
+    
+    html += `<div class="progress-step ${cls}" ${onclick}>
       <div class="icon">${cls === 'done' ? '✓' : s.icon}</div>
       <div class="label">${s.label}</div>
     </div>`;
@@ -942,6 +1032,18 @@ const renderProgressBar = (containerId, currentStep) => {
   html += '</div>';
   
   document.getElementById(containerId).innerHTML = html;
+};
+
+// 到着時刻の表示（モーダル）
+const showArrivalInfo = () => {
+  const arrTime = state.arrivalTime || '記録なし';
+  const bodyHtml = `
+    <div style="text-align:center;padding:20px 0;">
+      <div style="font-size:14px;color:var(--c-text2);margin-bottom:8px;">到着受付時刻</div>
+      <div style="font-family:var(--font-en);font-size:36px;font-weight:900;color:var(--c-accent);letter-spacing:2px;">${arrTime}</div>
+    </div>
+  `;
+  openModal('到着受付情報', bodyHtml, () => {}, true);
 };
 
 // ============================================================
@@ -1201,6 +1303,15 @@ const showPreOrderScreen = () => {
   document.getElementById('preOrderTeamA').textContent = state.teamName;
   document.getElementById('preOrderTeamB').textContent = task.opponent;
   
+  // 召集時刻カードの表示
+  const callCard = document.getElementById('preOrderCallTimeCard');
+  if (task.callTime) {
+    document.getElementById('preOrderCallTimeValue').textContent = task.callTime;
+    callCard.style.display = 'flex';
+  } else {
+    callCard.style.display = 'none';
+  }
+  
   showScreen('screenPreOrder');
 };
 
@@ -1218,6 +1329,15 @@ const renderOrderInputScreen = (task) => {
   document.getElementById('ordCourt').textContent = `コート ${task.court}`;
   document.getElementById('ordTeamA').textContent = state.teamName;
   document.getElementById('ordTeamB').textContent = task.opponent;
+  
+  // 召集時刻カード（コンパクト）
+  const callCard = document.getElementById('ordCallTimeCard');
+  if (task.callTime) {
+    document.getElementById('ordCallTimeValue').textContent = task.callTime;
+    callCard.style.display = 'flex';
+  } else {
+    callCard.style.display = 'none';
+  }
   
   const roster = state.teamRosters[state.teamName] || [];
   state.currentRoster = roster;
@@ -1446,6 +1566,15 @@ const showViewOrderScreen = async (roundIdx) => {
   document.getElementById('viewOrderTeamA').textContent = state.teamName;
   document.getElementById('viewOrderTeamB').textContent = task.opponent;
   
+  // 召集時刻カード
+  const callCard = document.getElementById('viewOrderCallTimeCard');
+  if (task.callTime) {
+    document.getElementById('viewOrderCallTimeValue').textContent = task.callTime;
+    callCard.style.display = 'flex';
+  } else {
+    callCard.style.display = 'none';
+  }
+  
   await renderSubmittedOrder(task, roundIdx);
   
   const btnContainer = document.getElementById('viewOrderButtons');
@@ -1502,14 +1631,6 @@ const renderSubmittedOrder = async (task, roundIdx) => {
         </div>
       `;
     });
-    
-    if (task.callTime) {
-      html += `
-        <div class="footer-info">
-          召集所集合時刻: <span class="call-time">${task.callTime}</span>
-        </div>
-      `;
-    }
     
     display.innerHTML = html;
   } catch (err) {
