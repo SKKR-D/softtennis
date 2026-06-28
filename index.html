@@ -871,8 +871,10 @@ const openModal = (title, body, onOk) => {
   document.getElementById('modalBody').innerHTML = body;
   state.modalCallback = onOk;
   document.getElementById('modalOkBtn').onclick = () => {
+    // ★ バグ修正：closeModal前にコールバックを保存して呼ぶ
+    const cb = state.modalCallback;
     closeModal();
-    if (state.modalCallback) state.modalCallback();
+    if (cb) cb();
   };
   document.getElementById('modalBackdrop').classList.add('show');
 };
