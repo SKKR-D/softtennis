@@ -345,7 +345,7 @@ body[data-gender="女子"] .btn-primary { box-shadow: 0 4px 12px rgba(163,33,107
 }
 
 /* ============================================================
-   召集時刻 強調カード（ユーザー目線で最も重要な情報）
+   コート集合時刻 強調カード（ユーザー目線で最も重要な情報）
    ============================================================ */
 .call-time-card {
   background: linear-gradient(135deg, var(--c-accent), var(--c-accent2));
@@ -669,11 +669,11 @@ body[data-gender="女子"] .btn-primary { box-shadow: 0 4px 12px rgba(163,33,107
     </div>
   </div>
   
-  <!-- 召集時刻カード（大きく表示） -->
+  <!-- コート集合時刻カード（大きく表示） -->
   <div class="call-time-card" id="preOrderCallTimeCard" style="display:none;">
     <div class="icon">🔔</div>
     <div class="content">
-      <div class="label">召集所集合時刻</div>
+      <div class="label">コート集合時刻</div>
       <div class="time" id="preOrderCallTimeValue">--:--</div>
     </div>
   </div>
@@ -708,11 +708,11 @@ body[data-gender="女子"] .btn-primary { box-shadow: 0 4px 12px rgba(163,33,107
     </div>
   </div>
   
-  <!-- 召集時刻カード（コンパクト） -->
+  <!-- コート集合時刻カード（コンパクト） -->
   <div class="call-time-card compact" id="ordCallTimeCard" style="display:none;">
     <div class="icon">🔔</div>
     <div class="content">
-      <div class="label">召集所集合時刻</div>
+      <div class="label">コート集合時刻</div>
       <div class="time" id="ordCallTimeValue">--:--</div>
     </div>
   </div>
@@ -764,7 +764,7 @@ body[data-gender="女子"] .btn-primary { box-shadow: 0 4px 12px rgba(163,33,107
     <div class="match-info" id="postOrderMatchInfo"></div>
     <div class="call-info" id="postOrderCallInfo">
       <div class="icon-row">🔔</div>
-      <div class="label">召集所集合時刻</div>
+      <div class="label">コート集合時刻</div>
       <div class="time" id="postOrderCallTime">--:--</div>
     </div>
     <div class="message">
@@ -801,11 +801,11 @@ body[data-gender="女子"] .btn-primary { box-shadow: 0 4px 12px rgba(163,33,107
     </div>
   </div>
   
-  <!-- 召集時刻カード（大きく表示） -->
+  <!-- コート集合時刻カード（大きく表示） -->
   <div class="call-time-card" id="viewOrderCallTimeCard" style="display:none;">
     <div class="icon">🔔</div>
     <div class="content">
-      <div class="label">召集所集合時刻</div>
+      <div class="label">コート集合時刻</div>
       <div class="time" id="viewOrderCallTimeValue">--:--</div>
     </div>
   </div>
@@ -829,7 +829,7 @@ body[data-gender="女子"] .btn-primary { box-shadow: 0 4px 12px rgba(163,33,107
   <div class="waiting-card">
     <div class="icon">⏳</div>
     <h2 id="waitTitle">次戦の準備中です</h2>
-    <p id="waitMessage">対戦相手・召集時刻が確定するまでしばらくお待ちください。</p>
+    <p id="waitMessage">対戦相手・コート集合時刻が確定するまでしばらくお待ちください。</p>
     <p class="auto-refresh">画面は自動的に更新されます</p>
   </div>
   
@@ -1346,7 +1346,7 @@ const showPreOrderScreen = () => {
   document.getElementById('preOrderTeamA').textContent = state.teamName;
   document.getElementById('preOrderTeamB').textContent = task.opponent;
   
-  // 召集時刻カードの表示
+  // コート集合時刻カードの表示
   const callCard = document.getElementById('preOrderCallTimeCard');
   if (task.callTime) {
     document.getElementById('preOrderCallTimeValue').textContent = task.callTime;
@@ -1373,7 +1373,7 @@ const renderOrderInputScreen = (task) => {
   document.getElementById('ordTeamA').textContent = state.teamName;
   document.getElementById('ordTeamB').textContent = task.opponent;
   
-  // 召集時刻カード（コンパクト）
+  // コート集合時刻カード（コンパクト）
   const callCard = document.getElementById('ordCallTimeCard');
   if (task.callTime) {
     document.getElementById('ordCallTimeValue').textContent = task.callTime;
@@ -1609,7 +1609,7 @@ const showViewOrderScreen = async (roundIdx) => {
   document.getElementById('viewOrderTeamA').textContent = state.teamName;
   document.getElementById('viewOrderTeamB').textContent = task.opponent;
   
-  // 召集時刻カード
+  // コート集合時刻カード
   const callCard = document.getElementById('viewOrderCallTimeCard');
   if (task.callTime) {
     document.getElementById('viewOrderCallTimeValue').textContent = task.callTime;
@@ -1695,7 +1695,7 @@ const showWaitingScreen = () => {
   document.getElementById('waitTitle').textContent = 
     `${ROUND_LABELS[roundIdx]}の準備中です`;
   document.getElementById('waitMessage').textContent = 
-    '対戦相手・召集時刻が確定するまでしばらくお待ちください。';
+    '対戦相手・コート集合時刻が確定するまでしばらくお待ちください。';
   
   startWaitingPoller();
   showScreen('screenWaiting');
