@@ -1338,6 +1338,10 @@ const submitOrder = async (order) => {
   const task = state.currentTask;
   if (!task) return;
   
+  // ★ 送信前の情報を保持（loadDashboard後に上書きされるため）
+  const completedRoundIdx = state.currentRoundIndex;
+  const completedTask = { ...task };
+  
   showLoading("オーダー送信中...");
   try {
     const result = await apiPost({
@@ -1352,10 +1356,15 @@ const submitOrder = async (order) => {
     showToast(result.updated ? "オーダーを更新しました" : "オーダーを送信しました");
     
     setTimeout(async () => {
-      showLoading("更新中...");
-      await loadDashboard();
-      hideLoading();
-      showPostOrderScreen();
+      try {
+        showLoading("更新中...");
+        await loadDashboard();
+        hideLoading();
+        showPostOrderScreen(completedRoundIdx, completedTask);
+      } catch (err) {
+        hideLoading();
+        showToast("更新エラー: " + err.message, "error");
+      }
     }, 800);
   } catch (err) {
     hideLoading();
@@ -1366,36 +1375,45 @@ const submitOrder = async (order) => {
 // ============================================================
 // Screen: PostOrder
 // ============================================================
-const showPostOrderScreen = () => {
-  const roundIdx = state.currentRoundIndex;
-  const task = state.tasks[roundIdx];
+const showPostOrderScreen = (completedRoundIdx, completedTask) => {
+  // 引数なしで呼ばれた場合のフォールバック
+  if (completedRoundIdx === undefined) {
+    completedRoundIdx = state.currentRoundIndex - 1;
+    completedTask = state.tasks[completedRoundIdx];
+  }
+  
+  if (!completedTask) {
+    showToast("完了情報の表示に失敗しました", "error");
+    showScreen('screenLogin');
+    return;
+  }
   
   document.getElementById('postOrderTeamBadge').textContent = state.teamName;
-  renderProgressBar('postOrderProgressBar', `round${roundIdx + 1}`);
+  renderProgressBar('postOrderProgressBar', `round${completedRoundIdx + 1}`);
   
   document.getElementById('postOrderMatchInfo').innerHTML = 
-    `${task.round}　対 ${task.opponent}`;
+    `${completedTask.round}　対 ${completedTask.opponent}`;
   
-  if (task.callTime) {
-    document.getElementById('postOrderCallTime').textContent = task.callTime;
+  if (completedTask.callTime) {
+    document.getElementById('postOrderCallTime').textContent = completedTask.callTime;
     document.getElementById('postOrderCallInfo').style.display = 'block';
   } else {
     document.getElementById('postOrderCallInfo').style.display = 'none';
   }
   
   const btnContainer = document.getElementById('postOrderButtons');
-  if (roundIdx >= 2) {
+  if (completedRoundIdx >= 2) {
     btnContainer.innerHTML = `
-      <button class="btn btn-primary btn-large mt-16" onclick="showViewOrderScreen(${roundIdx})">提出済のオーダーを確認する</button>
+      <button class="btn btn-primary btn-large mt-16" onclick="showViewOrderScreen(${completedRoundIdx})">提出済のオーダーを確認する</button>
     `;
   } else {
     btnContainer.innerHTML = `
-      <button class="btn btn-primary btn-large mt-16" onclick="proceedToNextRound()">${roundIdx === 0 ? '2' : '3'}試合目のオーダー提出画面へ</button>
-      <button class="btn btn-secondary mt-12" onclick="showViewOrderScreen(${roundIdx})">提出済のオーダーを確認する</button>
+      <button class="btn btn-primary btn-large mt-16" onclick="proceedToNextRound()">${completedRoundIdx === 0 ? '2' : '3'}試合目のオーダー提出画面へ</button>
+      <button class="btn btn-secondary mt-12" onclick="showViewOrderScreen(${completedRoundIdx})">提出済のオーダーを確認する</button>
     `;
   }
   
-  state.currentRoundIndex = roundIdx + 1;
+  // currentRoundIndex は loadDashboard で既に次の戦に進んでいる
   showScreen('screenPostOrder');
 };
 
@@ -1445,7 +1463,6 @@ const showViewOrderScreen = async (roundIdx) => {
 };
 
 const proceedToNextRoundFromView = async () => {
-  state.currentRoundIndex++;
   await proceedToNextRound();
 };
 
