@@ -156,6 +156,11 @@ body.deadline-overdue .top-bar { top: 40px; }
 }
 .progress-step.done { color: var(--c-success); }
 .progress-step.done .icon { background: var(--c-success); color: #fff; }
+.progress-step.done.viewing .icon {
+  background: var(--c-accent2);
+  box-shadow: 0 0 0 3px var(--c-accent2-light);
+}
+.progress-step.done.viewing { color: var(--c-accent2); font-weight: 700; }
 .progress-step.done[onclick]:hover .icon {
   transform: scale(1.15);
   box-shadow: 0 0 0 3px rgba(46,125,50,0.2);
@@ -992,40 +997,78 @@ const renderProgressBar = (containerId, currentStep) => {
     { key: 'round3', label: '3戦目', icon: '3' }
   ];
   
-  const stepOrder = ['arrival', 'round1', 'round2', 'round3'];
-  const currentIdx = stepOrder.indexOf(currentStep);
+  // 各戦の完了状態を実データから判定
+  // - arrival: state.isArrived
+  // - round1..3: state.currentRoundIndex > roundIdx → 完了済み
+  //              state.currentRoundIndex === roundIdx → 進行中
+  //              state.currentRoundIndex < roundIdx → 未着手
   
   let html = '<div class="progress-bar">';
   steps.forEach((s, i) => {
     let cls = 'pending';
     let onclick = '';
+    let isDone = false;
     
-    if (currentStep === 'done') {
-      cls = 'done';
-    } else if (i < currentIdx) {
-      cls = 'done';
-    } else if (i === currentIdx) {
-      cls = 'current';
+    if (s.key === 'arrival') {
+      if (state.isArrived) {
+        isDone = true;
+        cls = (s.key === currentStep) ? 'current' : 'done';
+      } else {
+        cls = (s.key === currentStep) ? 'current' : 'pending';
+      }
+    } else {
+      const roundIdx = parseInt(s.key.replace('round', ''), 10) - 1;  // round1→0
+      if (roundIdx < state.currentRoundIndex) {
+        // 既に提出済み
+        isDone = true;
+        cls = (s.key === currentStep) ? 'current-done' : 'done';
+      } else if (roundIdx === state.currentRoundIndex) {
+        cls = (s.key === currentStep) ? 'current' : 'current';
+      } else {
+        cls = 'pending';
+      }
     }
     
-    // 完了済みの戦はクリック可能
-    if (cls === 'done') {
+    // 完了済みなら、現在表示中であっても他の戦に遷移可能にしておく
+    if (isDone) {
       if (s.key === 'arrival') {
         onclick = `onclick="showArrivalInfo()" style="cursor:pointer;"`;
       } else {
-        // round1 → roundIdx = 0, round2 → 1, ...
         const roundIdx = parseInt(s.key.replace('round', ''), 10) - 1;
         onclick = `onclick="showViewOrderScreen(${roundIdx})" style="cursor:pointer;"`;
       }
     }
     
-    html += `<div class="progress-step ${cls}" ${onclick}>
-      <div class="icon">${cls === 'done' ? '✓' : s.icon}</div>
+    // 表示用クラス変換
+    let displayCls = cls;
+    let iconChar = s.icon;
+    if (cls === 'done' || cls === 'current-done') {
+      iconChar = '✓';
+      // current-done は「現在見ている＆完了済み」
+      displayCls = (cls === 'current-done') ? 'done viewing' : 'done';
+    }
+    
+    html += `<div class="progress-step ${displayCls}" ${onclick}>
+      <div class="icon">${iconChar}</div>
       <div class="label">${s.label}</div>
     </div>`;
     
     if (i < steps.length - 1) {
-      const connDone = (currentStep === 'done' || i < currentIdx);
+      // 次のステップがdoneかcurrentなら接続線を塗る
+      const nextStep = steps[i + 1];
+      let connDone = false;
+      if (nextStep.key === 'arrival') {
+        connDone = state.isArrived;
+      } else {
+        const nextRoundIdx = parseInt(nextStep.key.replace('round', ''), 10) - 1;
+        connDone = nextRoundIdx <= state.currentRoundIndex;
+      }
+      // arrival は currentRoundIndex に関係なく到着済みなら done
+      if (s.key === 'arrival') {
+        connDone = state.isArrived && (state.currentRoundIndex >= 0);
+        // ただし1戦目が pending なら接続線は半分
+        if (state.currentRoundIndex === 0) connDone = state.isArrived;
+      }
       html += `<div class="progress-connector ${connDone ? 'done' : ''}"></div>`;
     }
   });
