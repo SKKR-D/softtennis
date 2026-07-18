@@ -193,6 +193,10 @@ body {
 .standings-table tr.rank-3 td.rank { color: #cd7f32; }
 .standings-table td.wins { color: var(--c-success); font-weight: 700; }
 .standings-table td.losses { color: var(--c-danger); }
+.standings-table td.final-rank {
+  font-weight: 900;
+  color: var(--c-accent);
+}
 
 /* Matches list */
 .match-card {
@@ -566,6 +570,10 @@ const renderStandings = () => {
     return;
   }
   
+  // 全チーム3試合終了しているかチェック
+  const allFinished = teams.length > 0 && teams.every(t => t.played === 3);
+  const rankLabels = ['1位', '2位', '3位', '4位', '5位', '6位', '7位', '8位'];
+  
   let html = `
     <table class="standings-table">
       <thead>
@@ -575,7 +583,7 @@ const renderStandings = () => {
           <th>試合</th>
           <th>勝</th>
           <th>負</th>
-          <th>マッチ</th>
+          <th>確定順位</th>
         </tr>
       </thead>
       <tbody>
@@ -584,6 +592,7 @@ const renderStandings = () => {
   teams.forEach((t, idx) => {
     const rank = idx + 1;
     const rankClass = rank <= 3 ? `rank-${rank}` : '';
+    const finalRank = allFinished ? rankLabels[idx] : '';
     html += `
       <tr class="${rankClass}">
         <td class="rank">${rank}</td>
@@ -591,7 +600,7 @@ const renderStandings = () => {
         <td>${t.played}</td>
         <td class="wins">${t.wins}</td>
         <td class="losses">${t.losses}</td>
-        <td>${t.matchWins}-${t.matchLosses}</td>
+        <td class="final-rank">${finalRank}</td>
       </tr>
     `;
   });
