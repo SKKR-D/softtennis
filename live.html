@@ -185,12 +185,10 @@ body {
 .standings-table td.rank {
   font-family: var(--font-en);
   font-weight: 900;
-  font-size: 16px;
+  font-size: 18px;
   width: 36px;
+  color: var(--c-accent);
 }
-.standings-table tr.rank-1 td.rank { color: #d4af37; }
-.standings-table tr.rank-2 td.rank { color: #a0a0a0; }
-.standings-table tr.rank-3 td.rank { color: #cd7f32; }
 .standings-table td.wins { color: var(--c-success); font-weight: 700; }
 .standings-table td.losses { color: var(--c-danger); }
 .standings-table td.final-rank {
@@ -562,7 +560,7 @@ const render = () => {
 
 const renderStandings = () => {
   const gender = state.currentGender;
-  const teams = state.liveData.standings[gender] || [];
+  let teams = [...(state.liveData.standings[gender] || [])];
   
   if (teams.length === 0) {
     document.getElementById('standingsContainer').innerHTML = 
@@ -570,15 +568,42 @@ const renderStandings = () => {
     return;
   }
   
+  // matchesから各チームのNo.を取得
+  const matches = state.liveData.matches || [];
+  const teamNoMap = {};
+  matches.forEach(m => {
+    if (m.gender !== gender) return;
+    if (m.leftTeam.id && m.leftTeam.no && !teamNoMap[m.leftTeam.id]) {
+      teamNoMap[m.leftTeam.id] = m.leftTeam.no;
+    }
+    if (m.rightTeam.id && m.rightTeam.no && !teamNoMap[m.rightTeam.id]) {
+      teamNoMap[m.rightTeam.id] = m.rightTeam.no;
+    }
+  });
+  
+  // No.を各チームに付与
+  teams.forEach(t => {
+    t.no = teamNoMap[t.id] || '';
+  });
+  
+  // 成績順の順位を各チームに付与（GASから来た時点で既に成績順ソート済み）
+  const rankByTeamId = {};
+  teams.forEach((t, idx) => {
+    rankByTeamId[t.id] = idx + 1;
+  });
+  
   // 全チーム3試合終了しているかチェック
   const allFinished = teams.length > 0 && teams.every(t => t.played === 3);
   const rankLabels = ['1位', '2位', '3位', '4位', '5位', '6位', '7位', '8位'];
+  
+  // No.順にソート（A, B, C, D）
+  teams.sort((a, b) => String(a.no || '').localeCompare(String(b.no || '')));
   
   let html = `
     <table class="standings-table">
       <thead>
         <tr>
-          <th>順位</th>
+          <th>No.</th>
           <th>チーム</th>
           <th>試合</th>
           <th>勝</th>
@@ -589,13 +614,12 @@ const renderStandings = () => {
       <tbody>
   `;
   
-  teams.forEach((t, idx) => {
-    const rank = idx + 1;
-    const rankClass = rank <= 3 ? `rank-${rank}` : '';
-    const finalRank = allFinished ? rankLabels[idx] : '';
+  teams.forEach(t => {
+    const rankNum = rankByTeamId[t.id] || 0;
+    const finalRank = allFinished && rankNum > 0 ? rankLabels[rankNum - 1] : '';
     html += `
-      <tr class="${rankClass}">
-        <td class="rank">${rank}</td>
+      <tr>
+        <td class="rank">${t.no || '-'}</td>
         <td class="team-name">${t.shortName}</td>
         <td>${t.played}</td>
         <td class="wins">${t.wins}</td>
@@ -604,6 +628,10 @@ const renderStandings = () => {
       </tr>
     `;
   });
+  
+  html += '</tbody></table>';
+  document.getElementById('standingsContainer').innerHTML = html;
+};
   
   html += '</tbody></table>';
   document.getElementById('standingsContainer').innerHTML = html;
