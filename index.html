@@ -1201,6 +1201,19 @@ document.getElementById('loginCode').addEventListener('keydown', (e) => {
 });
 
 // ============================================================
+// URLパラメータからの自動ログイン（QRカード対応）
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) {
+    document.getElementById('loginCode').value = code;
+    // 自動ログイン実行
+    setTimeout(() => doLogin(), 300);
+  }
+});
+
+// ============================================================
 // Load Dashboard
 // ============================================================
 const loadDashboard = async () => {
