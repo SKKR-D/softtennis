@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>本部入力補助 - 県中総体団体戦決勝リーグ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-bg: #eef3f8;
+  --c-surface: #ffffff;
+  --c-surface2: #e2eaf2;
+  --c-primary: #0d4d8c;
+  --c-primary-light: #e3edf7;
+  --c-accent: #1976d2;
+  --c-male: #0d4d8c;
+  --c-female: #a3216b;
+  --c-success: #2e7d32;
+  --c-success-light: #e8f5e9;
+  --c-danger: #d32f2f;
+  --c-warn: #f57c00;
+  --c-warn-light: #fff4e5;
+  --c-text: #1a1a1a;
+  --c-text2: #5f6b7a;
+  --c-border: #c4d2e0;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+  --font-ja: 'Noto Sans JP', sans-serif;
+  --font-en: 'Inter', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: var(--font-ja);
+  background: var(--c-bg);
+  color: var(--c-text);
+  min-height: 100vh;
+}
+
+.header {
+  background: linear-gradient(135deg, #333 0%, #555 100%);
+  color: #fff;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.header .title { font-size: 16px; font-weight: 900; flex: 1; }
+.header .badge {
+  background: rgba(255,255,255,0.2);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.header .clock {
+  font-family: var(--font-en);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* Login */
+.login-screen {
+  max-width: 400px;
+  margin: 60px auto;
+  padding: 32px 24px;
+  background: var(--c-surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+.login-screen .icon {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, #333 0%, #555 100%);
+  color: #fff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  margin: 0 auto 16px;
+}
+.login-screen h2 { font-size: 20px; font-weight: 900; margin-bottom: 4px; }
+.login-screen p { font-size: 13px; color: var(--c-text2); margin-bottom: 20px; }
+.login-input {
+  width: 100%;
+  padding: 14px;
+  font-size: 18px;
+  text-align: center;
+  letter-spacing: 4px;
+  font-weight: 700;
+  font-family: var(--font-en);
+  background: var(--c-surface);
+  border: 2px solid var(--c-border);
+  border-radius: var(--r-md);
+  outline: none;
+  margin-bottom: 12px;
+}
+.login-input:focus { border-color: var(--c-primary); }
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--r-md);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: var(--font-ja);
+}
+.btn:active:not(:disabled) { transform: scale(.97); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn-primary {
+  background: var(--c-primary);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(13,77,140,.30);
+}
+.btn-success {
+  background: var(--c-success);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(46,125,50,.30);
+}
+.btn-secondary {
+  background: var(--c-surface);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+}
+.btn-danger-outline {
+  background: var(--c-surface);
+  color: var(--c-danger);
+  border: 1px solid var(--c-danger);
+}
+.error-msg {
+  color: var(--c-danger);
+  font-size: 13px;
+  margin-top: 8px;
+  min-height: 20px;
+}
+
+/* Filter tabs */
+.filter-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  background: var(--c-surface);
+  padding: 6px;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+}
+.filter-tab {
+  flex: 1;
+  min-width: 70px;
+  padding: 8px 12px;
+  text-align: center;
+  border-radius: var(--r-sm);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: var(--c-text2);
+  transition: all .15s;
+  white-space: nowrap;
+}
+.filter-tab.active {
+  background: var(--c-primary);
+  color: #fff;
+}
+
+/* Match list */
+.match-card {
+  background: var(--c-surface);
+  border-left: 4px solid var(--c-primary);
+  border-radius: var(--r-md);
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all .15s;
+  box-shadow: var(--shadow);
+}
+.match-card:active { transform: scale(0.99); }
+.match-card.male { border-left-color: var(--c-male); }
+.match-card.female { border-left-color: var(--c-female); }
+.match-card.finished { background: var(--c-success-light); }
+.match-card.in-progress { background: var(--c-warn-light); }
+
+.match-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: var(--c-text2);
+  flex-wrap: wrap;
+}
+.match-header .match-id {
+  font-family: var(--font-en);
+  font-weight: 700;
+  color: var(--c-text);
+}
+.match-header .court {
+  background: var(--c-surface2);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.match-header .status {
+  margin-left: auto;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.status.予定 { background: var(--c-surface2); color: var(--c-text2); }
+.status.準備中 { background: #fff4e5; color: var(--c-warn); }
+.status.オーダー確定 { background: #e3f2fd; color: var(--c-accent); }
+.status.進行中 { background: var(--c-warn); color: #fff; }
+.status.終了 { background: var(--c-success); color: #fff; }
+
+.match-matchup {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+.match-matchup .team {
+  text-align: center;
+}
+.match-matchup .vs {
+  color: var(--c-text2);
+  font-size: 12px;
+}
+.match-matchup .result {
+  font-family: var(--font-en);
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--c-primary);
+}
+
+/* Edit form */
+.form-section {
+  background: var(--c-surface);
+  border-radius: var(--r-md);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.form-section h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--c-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.form-section h3 .icon { font-size: 18px; }
+
+.match-info {
+  background: var(--c-primary-light);
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--c-text);
+  line-height: 1.6;
+}
+.match-info .matchup {
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.time-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.time-row .label {
+  min-width: 70px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-text2);
+}
+.time-input {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 15px;
+  font-family: var(--font-en);
+  font-weight: 700;
+  border: 2px solid var(--c-border);
+  border-radius: var(--r-sm);
+  outline: none;
+  text-align: center;
+}
+.time-input:focus { border-color: var(--c-primary); }
+.btn-now {
+  padding: 8px 14px;
+  background: var(--c-surface2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  font-family: var(--font-ja);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-now:hover { background: var(--c-border); }
+
+.match-row {
+  background: var(--c-primary-light);
+  border-radius: var(--r-sm);
+  padding: 12px;
+  margin-bottom: 8px;
+}
+.match-row .row-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-primary);
+  margin-bottom: 8px;
+}
+.match-row .score-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.match-row .team-label {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+.match-row .team-label.left { text-align: right; }
+.match-row .team-label.right { text-align: left; }
+.match-row .score-input-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+.match-row .score-input {
+  width: 44px;
+  padding: 6px;
+  font-size: 18px;
+  font-family: var(--font-en);
+  font-weight: 900;
+  text-align: center;
+  border: 2px solid var(--c-border);
+  border-radius: var(--r-sm);
+  outline: none;
+}
+.match-row .score-input:focus { border-color: var(--c-primary); }
+.match-row .score-dash {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--c-text2);
+}
+.winner-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.winner-btn {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid var(--c-border);
+  background: var(--c-surface);
+  border-radius: var(--r-sm);
+  font-family: var(--font-ja);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+}
+.winner-btn.selected {
+  background: var(--c-primary);
+  color: #fff;
+  border-color: var(--c-primary);
+}
+.winner-btn:active:not(.selected) { transform: scale(0.97); }
+
+.team-result-display {
+  background: var(--c-success-light);
+  border: 2px solid var(--c-success);
+  padding: 12px;
+  border-radius: var(--r-md);
+  text-align: center;
+  margin-top: 12px;
+}
+.team-result-display .label {
+  font-size: 12px;
+  color: var(--c-text2);
+  font-weight: 700;
+}
+.team-result-display .value {
+  font-family: var(--font-en);
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--c-success);
+  letter-spacing: 4px;
+}
+
+.action-bar {
+  position: sticky;
+  bottom: 0;
+  background: var(--c-surface);
+  padding: 12px;
+  margin: 20px -16px -16px;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+  display: flex;
+  gap: 8px;
+}
+.action-bar .btn { flex: 1; }
+
+.back-link {
+  color: var(--c-primary);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: inline-block;
+}
+.back-link:hover { text-decoration: underline; }
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--c-text2);
+}
+.spinner {
+  display: inline-block;
+  width: 24px; height: 24px;
+  border: 3px solid rgba(0,0,0,.1);
+  border-top-color: var(--c-primary);
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  margin-bottom: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+}
+.loading-overlay.show { display: flex; }
+.loading-overlay .spinner { width: 40px; height: 40px; border-width: 4px; }
+.loading-overlay p { font-size: 14px; color: var(--c-text2); }
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: var(--shadow-md);
+  z-index: 9998;
+  opacity: 0;
+  transition: all .3s ease;
+  max-width: 90%;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.success { border-color: var(--c-success); color: var(--c-success); }
+.toast.error { border-color: var(--c-danger); color: var(--c-danger); }
+
+.gender-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 16px 0 8px;
+  padding-left: 8px;
+  border-left: 4px solid var(--c-primary);
+}
+.gender-section-title.male { border-left-color: var(--c-male); color: var(--c-male); }
+.gender-section-title.female { border-left-color: var(--c-female); color: var(--c-female); }
+
+.screen { display: none; }
+.screen.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <p id="loadingMsg">読み込み中...</p>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- ============================================================
+     Screen: Login
+     ============================================================ -->
+<div class="screen active" id="screenLogin">
+  <div class="container">
+    <div class="login-screen">
+      <div class="icon">🔒</div>
+      <h2>本部入力補助</h2>
+      <p>本部認証コードを入力してください</p>
+      <input type="text" class="login-input" id="loginCode" placeholder="認証コード" autocomplete="off">
+      <button class="btn btn-primary" onclick="doLogin()">ログイン</button>
+      <div class="error-msg" id="loginError"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     Screen: Match List
+     ============================================================ -->
+<div class="screen" id="screenList">
+  <div class="header">
+    <span class="title">📋 試合一覧</span>
+    <span class="badge">本部</span>
+    <span class="clock" id="listClock">--:--</span>
+  </div>
+  <div class="container">
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-filter="all" onclick="switchFilter('all')">全て</button>
+      <button class="filter-tab" data-filter="pending" onclick="switchFilter('pending')">未入力</button>
+      <button class="filter-tab" data-filter="finished" onclick="switchFilter('finished')">終了済</button>
+      <button class="filter-tab" data-filter="male" onclick="switchFilter('male')">男子</button>
+      <button class="filter-tab" data-filter="female" onclick="switchFilter('female')">女子</button>
+    </div>
+    <div id="matchList">
+      <div class="loading"><div class="spinner"></div><p>読み込み中...</p></div>
+    </div>
+    <button class="btn btn-secondary" onclick="refreshList()" style="margin-top:12px;">🔄 再読み込み</button>
+    <button class="btn btn-danger-outline" onclick="doLogout()" style="margin-top:8px;">ログアウト</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     Screen: Edit Match
+     ============================================================ -->
+<div class="screen" id="screenEdit">
+  <div class="header">
+    <span class="title" id="editTitle">試合結果入力</span>
+    <span class="clock" id="editClock">--:--</span>
+  </div>
+  <div class="container">
+    <div class="back-link" onclick="backToList()">← 一覧に戻る</div>
+    
+    <div class="match-info" id="editMatchInfo"></div>
+    
+    <div class="form-section">
+      <h3><span class="icon">⏰</span>時刻</h3>
+      <div class="time-row">
+        <span class="label">開始時刻</span>
+        <input type="text" class="time-input" id="startTime" placeholder="HH:mm" maxlength="5">
+        <button class="btn-now" onclick="setNow('startTime')">今</button>
+      </div>
+      <div class="time-row">
+        <span class="label">終了時刻</span>
+        <input type="text" class="time-input" id="endTime" placeholder="HH:mm" maxlength="5">
+        <button class="btn-now" onclick="setNow('endTime')">今</button>
+      </div>
+    </div>
+    
+    <div class="form-section">
+      <h3><span class="icon">🎾</span>マッチ結果</h3>
+      
+      <div class="match-row">
+        <div class="row-title">第1マッチ</div>
+        <div class="score-row">
+          <div class="team-label left" id="editLeftTeam1"></div>
+          <div class="score-input-group">
+            <input type="text" class="score-input" id="match1Left" maxlength="1" inputmode="numeric" onchange="updateScore(1)">
+            <span class="score-dash">-</span>
+            <input type="text" class="score-input" id="match1Right" maxlength="1" inputmode="numeric" onchange="updateScore(1)">
+          </div>
+          <div class="team-label right" id="editRightTeam1"></div>
+        </div>
+        <div class="winner-row">
+          <button class="winner-btn" id="match1WinnerLeft" onclick="setWinner(1,'左')">← 左勝ち</button>
+          <button class="winner-btn" id="match1WinnerRight" onclick="setWinner(1,'右')">右勝ち →</button>
+        </div>
+      </div>
+      
+      <div class="match-row">
+        <div class="row-title">第2マッチ</div>
+        <div class="score-row">
+          <div class="team-label left" id="editLeftTeam2"></div>
+          <div class="score-input-group">
+            <input type="text" class="score-input" id="match2Left" maxlength="1" inputmode="numeric" onchange="updateScore(2)">
+            <span class="score-dash">-</span>
+            <input type="text" class="score-input" id="match2Right" maxlength="1" inputmode="numeric" onchange="updateScore(2)">
+          </div>
+          <div class="team-label right" id="editRightTeam2"></div>
+        </div>
+        <div class="winner-row">
+          <button class="winner-btn" id="match2WinnerLeft" onclick="setWinner(2,'左')">← 左勝ち</button>
+          <button class="winner-btn" id="match2WinnerRight" onclick="setWinner(2,'右')">右勝ち →</button>
+        </div>
+      </div>
+      
+      <div class="match-row">
+        <div class="row-title">第3マッチ</div>
+        <div class="score-row">
+          <div class="team-label left" id="editLeftTeam3"></div>
+          <div class="score-input-group">
+            <input type="text" class="score-input" id="match3Left" maxlength="1" inputmode="numeric" onchange="updateScore(3)">
+            <span class="score-dash">-</span>
+            <input type="text" class="score-input" id="match3Right" maxlength="1" inputmode="numeric" onchange="updateScore(3)">
+          </div>
+          <div class="team-label right" id="editRightTeam3"></div>
+        </div>
+        <div class="winner-row">
+          <button class="winner-btn" id="match3WinnerLeft" onclick="setWinner(3,'左')">← 左勝ち</button>
+          <button class="winner-btn" id="match3WinnerRight" onclick="setWinner(3,'右')">右勝ち →</button>
+        </div>
+      </div>
+      
+      <div class="team-result-display">
+        <div class="label">団体戦結果（左-右）</div>
+        <div class="value" id="teamResultDisplay">- - -</div>
+      </div>
+    </div>
+    
+    <div class="action-bar">
+      <button class="btn btn-secondary" onclick="backToList()">キャンセル</button>
+      <button class="btn btn-success" onclick="saveResult()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzaMlWM2GdU7hhTUN1ArXX-9RLs79CqIad_a1VpF6cEXgheTZ8uNW4mnVYbP_xlpCzR0A/exec";
+const REFRESH_INTERVAL = 30000;
+
+const state = {
+  isLoggedIn: false,
+  matches: [],
+  standings: {},
+  currentFilter: 'all',
+  editingMatch: null,
+  winners: { 1: '', 2: '', 3: '' },
+  clockTimerId: null,
+  refreshTimerId: null
+};
+
+// ============================================================
+// Clock
+// ============================================================
+const startClock = () => {
+  const update = () => {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    const text = `${h}:${m}:${s}`;
+    ['listClock', 'editClock'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    });
+  };
+  update();
+  if (state.clockTimerId) clearInterval(state.clockTimerId);
+  state.clockTimerId = setInterval(update, 1000);
+};
+
+// ============================================================
+// Screen navigation
+// ============================================================
+const showScreen = (id) => {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+};
+
+// ============================================================
+// Loading / Toast
+// ============================================================
+const showLoading = (msg = "読み込み中...") => {
+  document.getElementById('loadingMsg').textContent = msg;
+  document.getElementById('loadingOverlay').classList.add('show');
+};
+const hideLoading = () => document.getElementById('loadingOverlay').classList.remove('show');
+const showToast = (msg, type = "success") => {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 2800);
+};
+
+// ============================================================
+// API
+// ============================================================
+const apiGet = async (action, params = {}) => {
+  const url = new URL(GAS_URL);
+  url.searchParams.set('action', action);
+  Object.keys(params).forEach(k => url.searchParams.set(k, params[k]));
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};
+const apiPost = async (payload) => {
+  const res = await fetch(GAS_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};
+
+// ============================================================
+// Login
+// ============================================================
+const doLogin = async () => {
+  const code = document.getElementById('loginCode').value.trim();
+  const errEl = document.getElementById('loginError');
+  errEl.textContent = "";
+  if (!code) { errEl.textContent = "コードを入力してください"; return; }
+  
+  showLoading("認証中...");
+  try {
+    const data = await apiGet('adminLogin', { code });
+    if (data.error) { errEl.textContent = data.error; hideLoading(); return; }
+    state.isLoggedIn = true;
+    hideLoading();
+    startClock();
+    await refreshList();
+    startAutoRefresh();
+    showScreen('screenList');
+  } catch (err) {
+    hideLoading();
+    errEl.textContent = "通信エラー: " + err.message;
+  }
+};
+
+const doLogout = () => {
+  state.isLoggedIn = false;
+  state.matches = [];
+  if (state.clockTimerId) clearInterval(state.clockTimerId);
+  if (state.refreshTimerId) clearInterval(state.refreshTimerId);
+  document.getElementById('loginCode').value = "";
+  showScreen('screenLogin');
+};
+
+document.getElementById('loginCode').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// ============================================================
+// Match List
+// ============================================================
+const refreshList = async () => {
+  try {
+    const data = await apiGet('getAdminData');
+    if (data.error) throw new Error(data.error);
+    state.matches = data.matches || [];
+    renderList();
+  } catch (err) {
+    showToast("取得エラー: " + err.message, "error");
+  }
+};
+
+const startAutoRefresh = () => {
+  if (state.refreshTimerId) clearInterval(state.refreshTimerId);
+  state.refreshTimerId = setInterval(() => {
+    if (state.isLoggedIn && document.getElementById('screenList').classList.contains('active')) {
+      refreshList();
+    }
+  }, REFRESH_INTERVAL);
+};
+
+const switchFilter = (filter) => {
+  state.currentFilter = filter;
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.filter === filter);
+  });
+  renderList();
+};
+
+const renderList = () => {
+  let matches = [...state.matches];
+  const f = state.currentFilter;
+  
+  if (f === 'pending') matches = matches.filter(m => m.status !== '終了');
+  else if (f === 'finished') matches = matches.filter(m => m.status === '終了');
+  else if (f === 'male') matches = matches.filter(m => m.gender === '男子');
+  else if (f === 'female') matches = matches.filter(m => m.gender === '女子');
+  
+  if (matches.length === 0) {
+    document.getElementById('matchList').innerHTML = 
+      '<div style="text-align:center;color:#5f6b7a;padding:40px;">試合がありません</div>';
+    return;
+  }
+  
+  // 状態順→試合ID順
+  const statusOrder = { '進行中': 0, 'オーダー確定': 1, '準備中': 2, '予定': 3, '終了': 4 };
+  matches.sort((a, b) => {
+    const s = (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99);
+    if (s !== 0) return s;
+    return a.matchId.localeCompare(b.matchId);
+  });
+  
+  // 男女で分けて表示
+  const male = matches.filter(m => m.gender === '男子');
+  const female = matches.filter(m => m.gender === '女子');
+  
+  let html = '';
+  if (male.length > 0 && (f === 'all' || f === 'pending' || f === 'finished' || f === 'male')) {
+    html += '<div class="gender-section-title male">男子</div>';
+    male.forEach(m => { html += renderCard(m); });
+  }
+  if (female.length > 0 && (f === 'all' || f === 'pending' || f === 'finished' || f === 'female')) {
+    html += '<div class="gender-section-title female">女子</div>';
+    female.forEach(m => { html += renderCard(m); });
+  }
+  
+  document.getElementById('matchList').innerHTML = html;
+};
+
+const renderCard = (m) => {
+  const gClass = m.gender === '男子' ? 'male' : 'female';
+  const statusClass = m.status === '終了' ? 'finished' : m.status === '進行中' ? 'in-progress' : '';
+  const result = m.teamResult ? m.teamResult.replace('-', ' - ') : 'VS';
+  const resultClass = m.teamResult ? 'result' : 'vs';
+  
+  return `
+    <div class="match-card ${gClass} ${statusClass}" onclick="openEdit('${m.matchId}')">
+      <div class="match-header">
+        <span class="match-id">${m.matchId}</span>
+        <span>${m.round}</span>
+        <span class="court">コート ${m.court}</span>
+        <span class="status ${m.status}">${m.status}</span>
+      </div>
+      <div class="match-matchup">
+        <div class="team">${m.leftTeam.shortName}${m.leftTeam.no ? '('+m.leftTeam.no+')' : ''}</div>
+        <div class="${resultClass}">${result}</div>
+        <div class="team">${m.rightTeam.shortName}${m.rightTeam.no ? '('+m.rightTeam.no+')' : ''}</div>
+      </div>
+    </div>
+  `;
+};
+
+// ============================================================
+// Edit Screen
+// ============================================================
+const openEdit = (matchId) => {
+  const m = state.matches.find(x => x.matchId === matchId);
+  if (!m) return;
+  state.editingMatch = m;
+  state.winners = { 1: '', 2: '', 3: '' };
+  
+  document.getElementById('editTitle').textContent = `${m.matchId} 結果入力`;
+  document.getElementById('editMatchInfo').innerHTML = `
+    <div>${m.round}　コート ${m.court}</div>
+    <div class="matchup">${m.leftTeam.shortName}${m.leftTeam.no ? '('+m.leftTeam.no+')' : ''} vs ${m.rightTeam.shortName}${m.rightTeam.no ? '('+m.rightTeam.no+')' : ''}</div>
+  `;
+  
+  // チーム名ラベル
+  const leftLabel = `${m.leftTeam.shortName}${m.leftTeam.no ? '('+m.leftTeam.no+')' : ''}`;
+  const rightLabel = `${m.rightTeam.shortName}${m.rightTeam.no ? '('+m.rightTeam.no+')' : ''}`;
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById(`editLeftTeam${i}`).textContent = leftLabel;
+    document.getElementById(`editRightTeam${i}`).textContent = rightLabel;
+  }
+  
+  // 既存データを入力
+  document.getElementById('startTime').value = m.startTime || '';
+  document.getElementById('endTime').value = m.endTime || '';
+  
+  for (let i = 0; i < 3; i++) {
+    const res = m.matchResults[i] || {};
+    const scoreParts = (res.score || '').split('-');
+    document.getElementById(`match${i+1}Left`).value = scoreParts[0] || '';
+    document.getElementById(`match${i+1}Right`).value = scoreParts[1] || '';
+    if (res.winner) {
+      state.winners[i+1] = res.winner;
+    }
+  }
+  
+  updateWinnerButtons();
+  updateTeamResultDisplay();
+  showScreen('screenEdit');
+};
+
+const backToList = () => {
+  state.editingMatch = null;
+  showScreen('screenList');
+  refreshList();
+};
+
+const setNow = (fieldId) => {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  document.getElementById(fieldId).value = `${h}:${m}`;
+};
+
+const updateScore = (mn) => {
+  const left = document.getElementById(`match${mn}Left`).value;
+  const right = document.getElementById(`match${mn}Right`).value;
+  
+  // 自動で勝者を判定
+  const l = parseInt(left, 10);
+  const r = parseInt(right, 10);
+  if (!isNaN(l) && !isNaN(r)) {
+    if (l > r) state.winners[mn] = '左';
+    else if (r > l) state.winners[mn] = '右';
+  }
+  updateWinnerButtons();
+  updateTeamResultDisplay();
+};
+
+const setWinner = (mn, winner) => {
+  state.winners[mn] = winner;
+  updateWinnerButtons();
+  updateTeamResultDisplay();
+};
+
+const updateWinnerButtons = () => {
+  for (let mn = 1; mn <= 3; mn++) {
+    document.getElementById(`match${mn}WinnerLeft`).classList.toggle('selected', state.winners[mn] === '左');
+    document.getElementById(`match${mn}WinnerRight`).classList.toggle('selected', state.winners[mn] === '右');
+  }
+};
+
+const updateTeamResultDisplay = () => {
+  let leftWins = 0, rightWins = 0;
+  for (let mn = 1; mn <= 3; mn++) {
+    if (state.winners[mn] === '左') leftWins++;
+    else if (state.winners[mn] === '右') rightWins++;
+  }
+  const display = document.getElementById('teamResultDisplay');
+  if (leftWins > 0 || rightWins > 0) {
+    display.textContent = `${leftWins} - ${rightWins}`;
+  } else {
+    display.textContent = '- - -';
+  }
+};
+
+const saveResult = async () => {
+  const m = state.editingMatch;
+  if (!m) return;
+  
+  const payload = {
+    type: 'SUBMIT_MATCH_RESULT',
+    matchId: m.matchId,
+    match1Score: `${document.getElementById('match1Left').value}-${document.getElementById('match1Right').value}`.replace(/^-$/,''),
+    match1Winner: state.winners[1] || '',
+    match2Score: `${document.getElementById('match2Left').value}-${document.getElementById('match2Right').value}`.replace(/^-$/,''),
+    match2Winner: state.winners[2] || '',
+    match3Score: `${document.getElementById('match3Left').value}-${document.getElementById('match3Right').value}`.replace(/^-$/,''),
+    match3Winner: state.winners[3] || '',
+    startTime: document.getElementById('startTime').value || '',
+    endTime: document.getElementById('endTime').value || ''
+  };
+  
+  // 団体戦結果を計算
+  let leftWins = 0, rightWins = 0;
+  for (let mn = 1; mn <= 3; mn++) {
+    if (state.winners[mn] === '左') leftWins++;
+    else if (state.winners[mn] === '右') rightWins++;
+  }
+  if (leftWins > 0 || rightWins > 0) {
+    payload.teamResult = `${leftWins}-${rightWins}`;
+  } else {
+    payload.teamResult = '';
+  }
+  
+  showLoading("保存中...");
+  try {
+    const result = await apiPost(payload);
+    if (result.error) throw new Error(result.error);
+    hideLoading();
+    showToast("保存しました");
+    setTimeout(() => backToList(), 800);
+  } catch (err) {
+    hideLoading();
+    showToast("保存エラー: " + err.message, "error");
+  }
+};
+
+// 時刻入力の自動補正
+document.querySelectorAll('.time-input').forEach(el => {
+  el.addEventListener('blur', () => {
+    let v = el.value.replace(/[^\d:]/g, '');
+    if (/^\d{1,2}$/.test(v)) v = v.padStart(2, '0') + ':00';
+    else if (/^\d{3}$/.test(v)) v = '0' + v[0] + ':' + v.substring(1);
+    else if (/^\d{4}$/.test(v)) v = v.substring(0, 2) + ':' + v.substring(2);
+    else if (/^(\d{1,2}):(\d{1,2})$/.test(v)) {
+      const [h, m] = v.split(':');
+      v = h.padStart(2, '0') + ':' + m.padStart(2, '0');
+    }
+    el.value = v;
+  });
+});
+</script>
+</body>
+</html>
