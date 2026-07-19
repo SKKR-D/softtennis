@@ -7,9 +7,12 @@
     <style>
         * { box-sizing: border-box; }
         body { font-family: sans-serif; background-color: #f0f0f0; padding: 20px; }
-        /* 幅を広げて表を見やすく調整 */
         .container { background: #fff; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         h1 { font-size: 1.2rem; text-align: center; color: #333; }
+        
+        /* 読み込み中バッジのスタイル */
+        #sync-status { text-align: center; font-size: 0.9rem; color: #1976d2; font-weight: bold; margin-bottom: 10px; }
+        
         label { display: block; margin-top: 15px; font-weight: bold; }
         input[type="text"], input[type="time"] { width: 100%; padding: 10px; margin-top: 5px; font-size: 1.1rem; border: 1px solid #ccc; border-radius: 4px; }
         
@@ -25,7 +28,6 @@
 
         #meetingTimeArea { display: none; margin-top: 10px; background: #fff8e1; padding: 15px; border-radius: 4px; border: 1px dashed #f57f17; }
 
-        /* --- 進行表のスタイル --- */
         .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 20px; border: 1px solid #ccc; }
         .progress-table { border-collapse: collapse; width: max-content; min-width: 100%; font-size: 0.85rem; }
         .progress-table th, .progress-table td { border: 1px solid #999; padding: 12px 6px; text-align: center; white-space: nowrap; }
@@ -33,11 +35,10 @@
         .girls-court { background-color: #fce4ec; }
         .boys-court { background-color: #e1f5fe; }
         
-        /* セルの状態切替デザイン */
-        .cell-match { cursor: pointer; user-select: none; }
-        .cell-match[data-state="0"] { /* 未開始 */ }
-        .cell-match[data-state="1"] { border: 3px solid #d32f2f !important; font-weight: bold; background-color: #fff9c4; } /* 進行中 */
-        .cell-match[data-state="2"] { background-color: #e0e0e0 !important; color: #9e9e9e !important; } /* 終了 */
+        .cell-match { cursor: pointer; user-select: none; transition: 0.2s; }
+        .cell-match[data-state="0"] { }
+        .cell-match[data-state="1"] { border: 3px solid #d32f2f !important; font-weight: bold; background-color: #fff9c4; } 
+        .cell-match[data-state="2"] { background-color: #e0e0e0 !important; color: #9e9e9e !important; } 
         
         .hint { font-size: 0.85rem; color: #d32f2f; font-weight: bold; margin-top: 5px; }
 
@@ -49,6 +50,7 @@
 <body>
     <div class="container">
         <h1>状況更新パネル</h1>
+        <div id="sync-status">現在のデータを読み込み中...</div>
         
         <label>日付</label>
         <input type="text" id="dateText" placeholder="例: 7月19日（日）">
@@ -88,28 +90,24 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- 1回戦 ① -->
                     <tr>
                         <td>① 9:00</td>
                         <td id="m1" class="cell-match girls-court" data-state="0">1-2</td><td id="m2" class="cell-match girls-court" data-state="0">5-6</td><td id="m3" class="cell-match girls-court" data-state="0">9-10</td><td id="m4" class="cell-match girls-court" data-state="0">13-14</td>
                         <td id="m5" class="cell-match boys-court" data-state="0">1-2</td><td id="m6" class="cell-match boys-court" data-state="0">5-6</td><td id="m7" class="cell-match boys-court" data-state="0">9-10</td><td id="m8" class="cell-match boys-court" data-state="0">13-14</td><td id="m9" class="cell-match boys-court" data-state="0">17-18</td><td id="m10" class="cell-match boys-court" data-state="0">21-22</td><td id="m11" class="cell-match boys-court" data-state="0">25-26</td><td id="m12" class="cell-match boys-court" data-state="0">29-30</td>
                         <td id="m13" class="cell-match girls-court" data-state="0">17-18</td><td id="m14" class="cell-match girls-court" data-state="0">21-22</td><td id="m15" class="cell-match girls-court" data-state="0">25-26</td><td id="m16" class="cell-match girls-court" data-state="0">29-30</td>
                     </tr>
-                    <!-- 1回戦 ② -->
                     <tr>
                         <td>② 10:30</td>
                         <td id="m17" class="cell-match girls-court" data-state="0">3-4</td><td id="m18" class="cell-match girls-court" data-state="0">7-8</td><td id="m19" class="cell-match girls-court" data-state="0">11-12</td><td id="m20" class="cell-match girls-court" data-state="0">15-16</td>
                         <td id="m21" class="cell-match boys-court" data-state="0">3-4</td><td id="m22" class="cell-match boys-court" data-state="0">7-8</td><td id="m23" class="cell-match boys-court" data-state="0">11-12</td><td id="m24" class="cell-match boys-court" data-state="0">15-16</td><td id="m25" class="cell-match boys-court" data-state="0">19-20</td><td id="m26" class="cell-match boys-court" data-state="0">23-24</td><td id="m27" class="cell-match boys-court" data-state="0">27-28</td><td id="m28" class="cell-match boys-court" data-state="0">31-32</td>
                         <td id="m29" class="cell-match girls-court" data-state="0">19-20</td><td id="m30" class="cell-match girls-court" data-state="0">23-24</td><td id="m31" class="cell-match girls-court" data-state="0">27-28</td><td id="m32" class="cell-match girls-court" data-state="0">31-32</td>
                     </tr>
-                    <!-- 2回戦 ③ -->
                     <tr>
                         <td>③ 12:00</td>
                         <td id="m33" class="cell-match girls-court" data-state="0">1~4</td><td id="m34" class="cell-match girls-court" data-state="0">5~8</td><td id="m35" class="cell-match girls-court" data-state="0">9~12</td><td id="m36" class="cell-match girls-court" data-state="0">13~16</td>
                         <td id="m37" class="cell-match boys-court" data-state="0">1~4</td><td id="m38" class="cell-match boys-court" data-state="0">5~8</td><td id="m39" class="cell-match boys-court" data-state="0">9~12</td><td id="m40" class="cell-match boys-court" data-state="0">13~16</td><td id="m41" class="cell-match boys-court" data-state="0">17~20</td><td id="m42" class="cell-match boys-court" data-state="0">21~24</td><td id="m43" class="cell-match boys-court" data-state="0">25~28</td><td id="m44" class="cell-match boys-court" data-state="0">29~32</td>
                         <td id="m45" class="cell-match girls-court" data-state="0">17~20</td><td id="m46" class="cell-match girls-court" data-state="0">21~24</td><td id="m47" class="cell-match girls-court" data-state="0">25~28</td><td id="m48" class="cell-match girls-court" data-state="0">29~32</td>
                     </tr>
-                    <!-- 3回戦 ④ -->
                     <tr>
                         <td>④ 13:30</td>
                         <td id="m49" colspan="2" class="cell-match girls-court" data-state="0">1~8</td><td id="m50" colspan="2" class="cell-match girls-court" data-state="0">9~16</td>
@@ -120,22 +118,65 @@
             </table>
         </div>
 
-        <button onclick="updateStatus()">更新する</button>
+        <button id="updateBtn" onclick="updateStatus()" disabled>読み込み中...</button>
         <div id="msg"></div>
     </div>
 
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycbx5gcEOsmqJJs-rD31RSwvyS7KzaYB1XAlduPqNnwN98BjzROqI3XPYNSHtCRTARpnJ/exec";
 
+        // 開いた瞬間にGASから現在のデータを取得して同期する
         window.onload = () => {
+            // 時刻は「今」の時刻を自動入力しておくと運用が楽です
             const now = new Date();
             const days = ["日", "月", "火", "水", "木", "金", "土"];
             document.getElementById('dateText').value = `${now.getMonth() + 1}月${now.getDate()}日（${days[now.getDay()]}）`;
-            
             const currentTime = `${("0" + now.getHours()).slice(-2)}:${("0" + now.getMinutes()).slice(-2)}`;
             document.getElementById('timeText').value = currentTime;
             document.getElementById('meetingTime').value = currentTime;
+
+            fetchCurrentData();
         };
+
+        function fetchCurrentData() {
+            fetch(GAS_URL)
+                .then(response => response.json())
+                .then(data => {
+                    // 状況ラジオボタンの同期
+                    if (data.status) {
+                        if (data.status.includes("全員待機") || data.status === "待機") {
+                            document.querySelector('input[value="wait_all"]').checked = true;
+                        } else if (data.status.includes("監督会議")) {
+                            document.querySelector('input[value="meeting"]').checked = true;
+                            document.getElementById('meetingTimeArea').style.display = 'block';
+                        } else if (data.status.includes("競技中")) {
+                            document.querySelector('input[value="playing"]').checked = true;
+                        } else {
+                            document.querySelector('input[value="resume"]').checked = true;
+                        }
+                    }
+
+                    // 進行表の同期
+                    const courtStatus = data.courtStatus || {};
+                    document.querySelectorAll('.cell-match').forEach(cell => {
+                        if (courtStatus[cell.id]) {
+                            cell.setAttribute('data-state', courtStatus[cell.id]);
+                        } else {
+                            cell.setAttribute('data-state', '0');
+                        }
+                    });
+
+                    // 同期完了
+                    document.getElementById('sync-status').style.display = 'none';
+                    const btn = document.getElementById('updateBtn');
+                    btn.disabled = false;
+                    btn.innerText = "更新する";
+                })
+                .catch(err => {
+                    document.getElementById('sync-status').innerText = "データの読み込みに失敗しました。ページをリロードしてください。";
+                    document.getElementById('sync-status').style.color = "red";
+                });
+        }
 
         // セルをタップした時に状態（0,1,2）を切り替える
         document.querySelectorAll('.cell-match').forEach(cell => {
@@ -154,7 +195,7 @@
         });
 
         function updateStatus() {
-            const btn = document.querySelector('button');
+            const btn = document.getElementById('updateBtn');
             const msg = document.getElementById('msg');
             btn.disabled = true;
             btn.innerText = "送信中...";
@@ -174,7 +215,6 @@
                 finalStatusText = "競技中";
             }
 
-            // 進行表のデータを収集
             const courtStatus = {};
             document.querySelectorAll('.cell-match').forEach(cell => {
                 if (cell.getAttribute('data-state') !== "0") {
@@ -186,7 +226,7 @@
                 dateText: document.getElementById('dateText').value,
                 timeText: document.getElementById('timeText').value,
                 status: finalStatusText,
-                courtStatus: courtStatus // 収集したデータを追加
+                courtStatus: courtStatus
             };
 
             fetch(GAS_URL, {
