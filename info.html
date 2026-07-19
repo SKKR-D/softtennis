@@ -9,9 +9,14 @@
         .container { background-color: #fff; width: 100%; max-width: 450px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 30px 20px; text-align: center; }
         .header-title { font-size: 1.1rem; font-weight: bold; color: #555; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
         .datetime { font-size: 1.6rem; font-weight: bold; margin-bottom: 25px; color: #222; }
-        .status-box { font-size: 2.2rem; font-weight: bold; padding: 40px 10px; border-radius: 8px; margin-bottom: 20px; word-break: keep-all; }
+        
+        .status-box { font-size: 2rem; font-weight: bold; padding: 40px 10px; border-radius: 8px; margin-bottom: 20px; word-break: keep-all; line-height: 1.4; }
+        
+        /* 色分け設定 */
         .status-wait { background-color: #ffebee; color: #d32f2f; border: 4px solid #d32f2f; }
+        .status-meeting { background-color: #fff8e1; color: #f57f17; border: 4px solid #f57f17; } /* 監督会議はオレンジ */
         .status-resume { background-color: #e3f2fd; color: #1976d2; border: 4px solid #1976d2; }
+        
         .note { font-size: 0.85rem; color: #777; margin-top: 25px; line-height: 1.5; }
         .loading { font-size: 1rem; color: #999; }
     </style>
@@ -48,9 +53,13 @@
                     statusBox.style.display = 'block';
                     statusBox.innerText = data.status;
                     
+                    // テキストの内容によって色を変える
                     if (data.status === "待機") {
                         statusBox.className = "status-box status-wait";
+                    } else if (data.status.includes("監督会議")) {
+                        statusBox.className = "status-box status-meeting";
                     } else {
+                        // 「20分後競技開始」など
                         statusBox.className = "status-box status-resume";
                     }
 
