@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>県中総体ソフトテニス競技 - 緊急連絡</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background-color: #fff; width: 100%; max-width: 450px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 30px 20px; text-align: center; }
+        .header-title { font-size: 1.1rem; font-weight: bold; color: #555; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .datetime { font-size: 1.6rem; font-weight: bold; margin-bottom: 25px; color: #222; }
+        .status-box { font-size: 2.2rem; font-weight: bold; padding: 40px 10px; border-radius: 8px; margin-bottom: 20px; word-break: keep-all; }
+        .status-wait { background-color: #ffebee; color: #d32f2f; border: 4px solid #d32f2f; }
+        .status-resume { background-color: #e3f2fd; color: #1976d2; border: 4px solid #1976d2; }
+        .note { font-size: 0.85rem; color: #777; margin-top: 25px; line-height: 1.5; }
+        .loading { font-size: 1rem; color: #999; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-title">県中総体ソフトテニス競技<br>緊急連絡ボード</div>
+
+        <div class="datetime" id="display-datetime">
+            <span class="loading">最新情報を取得中...</span>
+        </div>
+
+        <div id="display-status" class="status-box status-wait" style="display:none;">
+            <!-- ここにステータスが表示されます -->
+        </div>
+
+        <div class="note">
+            ※このページは1分ごとに自動更新されます。<br>
+            最終確認: <span id="last-sync">--:--</span>
+        </div>
+    </div>
+
+    <script>
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbx5gcEOsmqJJs-rD31RSwvyS7KzaYB1XAlduPqNnwN98BjzROqI3XPYNSHtCRTARpnJ/exec";
+
+        function fetchData() {
+            fetch(GAS_URL)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('display-datetime').innerHTML = `${data.dateText}<br>${data.timeText} 現在`;
+                    
+                    const statusBox = document.getElementById('display-status');
+                    statusBox.style.display = 'block';
+                    statusBox.innerText = data.status;
+                    
+                    if (data.status === "待機") {
+                        statusBox.className = "status-box status-wait";
+                    } else {
+                        statusBox.className = "status-box status-resume";
+                    }
+
+                    const now = new Date();
+                    document.getElementById('last-sync').innerText = `${("0"+now.getHours()).slice(-2)}:${("0"+now.getMinutes()).slice(-2)}`;
+                })
+                .catch(err => {
+                    console.error("データ取得エラー", err);
+                });
+        }
+
+        fetchData();
+        setInterval(fetchData, 60000);
+    </script>
+</body>
+</html>
