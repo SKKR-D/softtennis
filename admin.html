@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【本部用】緊急連絡更新</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f0f0; padding: 20px; }
+        .container { background: #fff; padding: 20px; border-radius: 8px; max-width: 400px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { font-size: 1.2rem; text-align: center; color: #333; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input[type="text"], input[type="time"] { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; font-size: 1.1rem; border: 1px solid #ccc; border-radius: 4px; }
+        .radio-group { display: flex; gap: 10px; margin-top: 10px; }
+        .radio-group label { flex: 1; padding: 15px; text-align: center; background: #eee; border-radius: 4px; margin-top: 0; cursor: pointer; border: 2px solid transparent; }
+        .radio-group input { display: none; }
+        .radio-group input:checked + span { font-weight: bold; color: #d32f2f; }
+        .radio-group label:has(input:checked) { border-color: #d32f2f; background: #ffebee; }
+        button { margin-top: 25px; width: 100%; padding: 15px; background: #1976d2; color: white; border: none; border-radius: 4px; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
+        button:disabled { background: #999; }
+        #msg { text-align: center; margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>状況更新パネル</h1>
+        
+        <label>日付</label>
+        <input type="text" id="dateText" placeholder="例: 7月19日（日）">
+        
+        <label>時刻</label>
+        <input type="time" id="timeText">
+        
+        <label>状況</label>
+        <div class="radio-group">
+            <label><input type="radio" name="status" value="待機" checked> <span>待機</span></label>
+            <label><input type="radio" name="status" value="20分後競技再開"> <span>再開</span></label>
+        </div>
+
+        <button onclick="updateStatus()">更新する</button>
+        <div id="msg"></div>
+    </div>
+
+    <script>
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbx5gcEOsmqJJs-rD31RSwvyS7KzaYB1XAlduPqNnwN98BjzROqI3XPYNSHtCRTARpnJ/exec";
+
+        // 初期表示で現在の日付と時刻をセット（現場での入力の手間を省くため）
+        window.onload = () => {
+            const now = new Date();
+            const days = ["日", "月", "火", "水", "木", "金", "土"];
+            document.getElementById('dateText').value = `${now.getMonth() + 1}月${now.getDate()}日（${days[now.getDay()]}）`;
+            document.getElementById('timeText').value = `${("0" + now.getHours()).slice(-2)}:${("0" + now.getMinutes()).slice(-2)}`;
+        };
+
+        function updateStatus() {
+            const btn = document.querySelector('button');
+            const msg = document.getElementById('msg');
+            btn.disabled = true;
+            btn.innerText = "送信中...";
+            msg.innerText = "";
+
+            const data = {
+                dateText: document.getElementById('dateText').value,
+                timeText: document.getElementById('timeText').value,
+                status: document.querySelector('input[name="status"]:checked').value
+            };
+
+            fetch(GAS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(res => {
+                msg.innerText = "更新が完了しました！";
+                msg.style.color = "green";
+                btn.disabled = false;
+                btn.innerText = "更新する";
+                setTimeout(() => msg.innerText = "", 3000);
+            })
+            .catch(err => {
+                msg.innerText = "エラーが発生しました";
+                msg.style.color = "red";
+                btn.disabled = false;
+                btn.innerText = "更新する";
+            });
+        }
+    </script>
+</body>
+</html>
