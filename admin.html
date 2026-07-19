@@ -10,11 +10,21 @@
         h1 { font-size: 1.2rem; text-align: center; color: #333; }
         label { display: block; margin-top: 15px; font-weight: bold; }
         input[type="text"], input[type="time"] { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; font-size: 1.1rem; border: 1px solid #ccc; border-radius: 4px; }
-        .radio-group { display: flex; gap: 10px; margin-top: 10px; }
-        .radio-group label { flex: 1; padding: 15px; text-align: center; background: #eee; border-radius: 4px; margin-top: 0; cursor: pointer; border: 2px solid transparent; }
+        
+        /* スマホで押しやすいよう縦並びに変更 */
+        .radio-group { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        .radio-group label { padding: 15px; text-align: center; background: #eee; border-radius: 4px; margin-top: 0; cursor: pointer; border: 2px solid transparent; }
         .radio-group input { display: none; }
-        .radio-group input:checked + span { font-weight: bold; color: #d32f2f; }
-        .radio-group label:has(input:checked) { border-color: #d32f2f; background: #ffebee; }
+        .radio-group input:checked + span { font-weight: bold; }
+        
+        /* 選択時の色分け */
+        .radio-group label:has(input[value="wait"]:checked) { border-color: #d32f2f; background: #ffebee; color: #d32f2f; }
+        .radio-group label:has(input[value="meeting"]:checked) { border-color: #f57f17; background: #fff8e1; color: #f57f17; }
+        .radio-group label:has(input[value="resume"]:checked) { border-color: #1976d2; background: #e3f2fd; color: #1976d2; }
+
+        /* 会議時刻入力エリア（初期は非表示） */
+        #meetingTimeArea { display: none; margin-top: 10px; background: #fff8e1; padding: 15px; border-radius: 4px; border: 1px dashed #f57f17; }
+
         button { margin-top: 25px; width: 100%; padding: 15px; background: #1976d2; color: white; border: none; border-radius: 4px; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
         button:disabled { background: #999; }
         #msg { text-align: center; margin-top: 15px; font-weight: bold; }
@@ -27,13 +37,19 @@
         <label>日付</label>
         <input type="text" id="dateText" placeholder="例: 7月19日（日）">
         
-        <label>時刻</label>
+        <label>現在の時刻</label>
         <input type="time" id="timeText">
         
-        <label>状況</label>
+        <label>状況を選択</label>
         <div class="radio-group">
-            <label><input type="radio" name="status" value="待機" checked> <span>待機</span></label>
-            <label><input type="radio" name="status" value="20分後競技再開"> <span>再開</span></label>
+            <label><input type="radio" name="statusType" value="wait" checked> <span>待機</span></label>
+            <label><input type="radio" name="statusType" value="meeting"> <span>監督会議を行う</span></label>
+            <label><input type="radio" name="statusType" value="resume"> <span>20分後競技開始</span></label>
+        </div>
+
+        <div id="meetingTimeArea">
+            <label>監督会議の開始時刻を指定</label>
+            <input type="time" id="meetingTime">
         </div>
 
         <button onclick="updateStatus()">更新する</button>
@@ -43,13 +59,24 @@
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycbx5gcEOsmqJJs-rD31RSwvyS7KzaYB1XAlduPqNnwN98BjzROqI3XPYNSHtCRTARpnJ/exec";
 
-        // 初期表示で現在の日付と時刻をセット（現場での入力の手間を省くため）
+        // 初期表示で現在の日付と時刻をセット
         window.onload = () => {
             const now = new Date();
             const days = ["日", "月", "火", "水", "木", "金", "土"];
             document.getElementById('dateText').value = `${now.getMonth() + 1}月${now.getDate()}日（${days[now.getDay()]}）`;
-            document.getElementById('timeText').value = `${("0" + now.getHours()).slice(-2)}:${("0" + now.getMinutes()).slice(-2)}`;
+            
+            const currentTime = `${("0" + now.getHours()).slice(-2)}:${("0" + now.getMinutes()).slice(-2)}`;
+            document.getElementById('timeText').value = currentTime;
+            document.getElementById('meetingTime').value = currentTime; // 会議時刻の初期値も現在時刻にする
         };
+
+        // 「監督会議」が選ばれた時だけ時刻入力欄を表示
+        document.querySelectorAll('input[name="statusType"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const area = document.getElementById('meetingTimeArea');
+                area.style.display = (e.target.value === 'meeting') ? 'block' : 'none';
+            });
+        });
 
         function updateStatus() {
             const btn = document.querySelector('button');
@@ -58,10 +85,23 @@
             btn.innerText = "送信中...";
             msg.innerText = "";
 
+            // 選択された状況に応じて送信するテキストを作成
+            const type = document.querySelector('input[name="statusType"]:checked').value;
+            let finalStatusText = "";
+
+            if (type === "wait") {
+                finalStatusText = "待機";
+            } else if (type === "meeting") {
+                const mTime = document.getElementById('meetingTime').value || "未定";
+                finalStatusText = `監督会議を${mTime}から行います`;
+            } else if (type === "resume") {
+                finalStatusText = "20分後競技開始";
+            }
+
             const data = {
                 dateText: document.getElementById('dateText').value,
                 timeText: document.getElementById('timeText').value,
-                status: document.querySelector('input[name="status"]:checked').value
+                status: finalStatusText
             };
 
             fetch(GAS_URL, {
