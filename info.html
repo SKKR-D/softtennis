@@ -11,7 +11,6 @@
         .header-title { font-size: 1.1rem; font-weight: bold; color: #555; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
         .datetime { font-size: 1.6rem; font-weight: bold; margin-bottom: 25px; color: #222; }
         
-        /* フォントサイズを微調整し、長い文章でも収まるようにしています */
         .status-box { 
             font-size: clamp(1.1rem, 5vw, 1.6rem); 
             font-weight: bold; 
@@ -24,9 +23,11 @@
             overflow-wrap: break-word; 
         }
         
-        .status-wait { background-color: #ffebee; color: #d32f2f; border: 4px solid #d32f2f; }
-        .status-meeting { background-color: #fff8e1; color: #f57f17; border: 4px solid #f57f17; }
-        .status-resume { background-color: #e3f2fd; color: #1976d2; border: 4px solid #1976d2; }
+        /* 4種類の色分け設定 */
+        .status-wait { background-color: #ffebee; color: #d32f2f; border: 4px solid #d32f2f; }       /* 赤 */
+        .status-meeting { background-color: #fff8e1; color: #f57f17; border: 4px solid #f57f17; }    /* オレンジ */
+        .status-resume { background-color: #e3f2fd; color: #1976d2; border: 4px solid #1976d2; }     /* 青 */
+        .status-playing { background-color: #e8f5e9; color: #2e7d32; border: 4px solid #2e7d32; }    /* 緑 */
         
         .note { font-size: 0.85rem; color: #777; margin-top: 25px; line-height: 1.5; }
         .loading { font-size: 1rem; color: #999; }
@@ -62,7 +63,6 @@
                     
                     const statusBox = document.getElementById('display-status');
                     statusBox.style.display = 'block';
-                    // HTMLの改行タグ（<br>）を解釈させるため innerHTML を使用
                     statusBox.innerHTML = data.status;
                     
                     // 色分けの判定
@@ -70,6 +70,8 @@
                         statusBox.className = "status-box status-wait";
                     } else if (data.status.includes("監督会議")) {
                         statusBox.className = "status-box status-meeting";
+                    } else if (data.status.includes("競技中")) {
+                        statusBox.className = "status-box status-playing";
                     } else {
                         statusBox.className = "status-box status-resume";
                     }
