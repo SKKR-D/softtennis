@@ -10,7 +10,6 @@
         .container { background: #fff; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         h1 { font-size: 1.2rem; text-align: center; color: #333; }
         
-        /* 読み込み中バッジのスタイル */
         #sync-status { text-align: center; font-size: 0.9rem; color: #1976d2; font-weight: bold; margin-bottom: 10px; }
         
         label { display: block; margin-top: 15px; font-weight: bold; }
@@ -21,10 +20,12 @@
         .radio-group input { display: none; }
         .radio-group input:checked + span { font-weight: bold; }
         
+        /* 5つの状態ごとの色設定 */
         .radio-group label:has(input[value="wait_all"]:checked) { border-color: #d32f2f; background: #ffebee; color: #d32f2f; }
         .radio-group label:has(input[value="meeting"]:checked) { border-color: #f57f17; background: #fff8e1; color: #f57f17; }
         .radio-group label:has(input[value="resume"]:checked) { border-color: #1976d2; background: #e3f2fd; color: #1976d2; }
         .radio-group label:has(input[value="playing"]:checked) { border-color: #2e7d32; background: #e8f5e9; color: #2e7d32; }
+        .radio-group label:has(input[value="finished"]:checked) { border-color: #616161; background: #f5f5f5; color: #616161; }
 
         #meetingTimeArea { display: none; margin-top: 10px; background: #fff8e1; padding: 15px; border-radius: 4px; border: 1px dashed #f57f17; }
 
@@ -64,6 +65,7 @@
             <label><input type="radio" name="statusType" value="meeting"> <span>待機 ＋ 監督会議</span></label>
             <label><input type="radio" name="statusType" value="resume"> <span>20分後競技再開</span></label>
             <label><input type="radio" name="statusType" value="playing"> <span>競技中</span></label>
+            <label><input type="radio" name="statusType" value="finished"> <span>本日の競技はすべて終了しました</span></label>
         </div>
 
         <div id="meetingTimeArea">
@@ -125,9 +127,7 @@
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycbx5gcEOsmqJJs-rD31RSwvyS7KzaYB1XAlduPqNnwN98BjzROqI3XPYNSHtCRTARpnJ/exec";
 
-        // 開いた瞬間にGASから現在のデータを取得して同期する
         window.onload = () => {
-            // 時刻は「今」の時刻を自動入力しておくと運用が楽です
             const now = new Date();
             const days = ["日", "月", "火", "水", "木", "金", "土"];
             document.getElementById('dateText').value = `${now.getMonth() + 1}月${now.getDate()}日（${days[now.getDay()]}）`;
@@ -142,9 +142,10 @@
             fetch(GAS_URL)
                 .then(response => response.json())
                 .then(data => {
-                    // 状況ラジオボタンの同期
                     if (data.status) {
-                        if (data.status.includes("全員待機") || data.status === "待機") {
+                        if (data.status.includes("終了しました")) {
+                            document.querySelector('input[value="finished"]').checked = true;
+                        } else if (data.status.includes("全員待機") || data.status === "待機") {
                             document.querySelector('input[value="wait_all"]').checked = true;
                         } else if (data.status.includes("監督会議")) {
                             document.querySelector('input[value="meeting"]').checked = true;
@@ -156,7 +157,6 @@
                         }
                     }
 
-                    // 進行表の同期
                     const courtStatus = data.courtStatus || {};
                     document.querySelectorAll('.cell-match').forEach(cell => {
                         if (courtStatus[cell.id]) {
@@ -166,7 +166,6 @@
                         }
                     });
 
-                    // 同期完了
                     document.getElementById('sync-status').style.display = 'none';
                     const btn = document.getElementById('updateBtn');
                     btn.disabled = false;
@@ -178,7 +177,6 @@
                 });
         }
 
-        // セルをタップした時に状態（0,1,2）を切り替える
         document.querySelectorAll('.cell-match').forEach(cell => {
             cell.addEventListener('click', function() {
                 let state = parseInt(this.getAttribute('data-state') || '0');
@@ -204,7 +202,9 @@
             const type = document.querySelector('input[name="statusType"]:checked').value;
             let finalStatusText = "";
 
-            if (type === "wait_all") {
+            if (type === "finished") {
+                finalStatusText = "本日の競技はすべて終了しました";
+            } else if (type === "wait_all") {
                 finalStatusText = "全員待機";
             } else if (type === "meeting") {
                 const mTime = document.getElementById('meetingTime').value || "未定";
