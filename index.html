@@ -1217,7 +1217,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // Load Dashboard
 // ============================================================
 const loadDashboard = async () => {
-  const data = await apiGet('getDashboardData', { teamName: state.teamName });
+  const data = await apiGet('getDashboardData', { teamName: state.teamName, gender: state.gender });
   if (data.error) throw new Error(data.error);
   
   state.teamRosters = data.teamRosters || {};
@@ -1298,7 +1298,8 @@ const submitArrival = async () => {
     const result = await apiPost({
       type: "SUBMIT_ARRIVAL",
       matchId: currentTask.matchId,
-      entityName: state.teamName
+      entityName: state.teamName,
+      gender: state.gender
     });
     if (result.error) throw new Error(result.error);
     
@@ -1524,7 +1525,8 @@ const submitOrder = async (order) => {
       type: "SUBMIT_ORDER",
       matchId: task.matchId,
       entityName: state.teamName,
-      order: order
+      order: order,
+      gender: state.gender
     });
     if (result.error) throw new Error(result.error);
     
@@ -1658,7 +1660,8 @@ const renderSubmittedOrder = async (task, roundIdx) => {
   try {
     const data = await apiGet('getOrder', { 
       matchId: task.matchId, 
-      teamName: state.teamName 
+      teamName: state.teamName,
+      gender: state.gender
     });
     
     const display = document.getElementById('submittedOrderDisplay');
