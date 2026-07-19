@@ -731,6 +731,12 @@ const renderMatchCard = (m) => {
 };
 
 const renderMatchDetails = (m) => {
+  // 試合開始後（進行中・終了）のみ詳細を表示
+  // それ以前は公平性のためオーダーを非公開
+  if (m.status !== '進行中' && m.status !== '終了') {
+    return '';
+  }
+  
   const leftOrder = m.leftTeam.order;
   const rightOrder = m.rightTeam.order;
   
