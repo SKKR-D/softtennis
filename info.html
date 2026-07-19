@@ -5,34 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>県中総体ソフトテニス競技 - 緊急連絡</title>
     <style>
-        /* 全要素の幅計算を枠線・余白込みにし、はみ出しを防止 */
         * { box-sizing: border-box; }
-        
         body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background-color: #fff; width: 100%; max-width: 450px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 30px 20px; text-align: center; }
         .header-title { font-size: 1.1rem; font-weight: bold; color: #555; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
         .datetime { font-size: 1.6rem; font-weight: bold; margin-bottom: 25px; color: #222; }
         
-        /* 
-         * はみ出し対策の要：
-         * clamp(最小サイズ, 推奨サイズ(画面幅依存), 最大サイズ)
-         * これにより、スマホ等の狭い画面では文字が自動で縮小されます。
-         */
+        /* フォントサイズを微調整し、長い文章でも収まるようにしています */
         .status-box { 
-            font-size: clamp(1.2rem, 6vw, 1.8rem); 
+            font-size: clamp(1.1rem, 5vw, 1.6rem); 
             font-weight: bold; 
             padding: 30px 10px; 
             border-radius: 8px; 
             margin-bottom: 20px; 
             width: 100%; 
-            line-height: 1.5; 
+            line-height: 1.6; 
             word-break: break-all; 
             overflow-wrap: break-word; 
         }
         
-        /* 3種類の色分け設定 */
         .status-wait { background-color: #ffebee; color: #d32f2f; border: 4px solid #d32f2f; }
-        .status-meeting { background-color: #fff8e1; color: #f57f17; border: 4px solid #f57f17; } /* 監督会議はオレンジ */
+        .status-meeting { background-color: #fff8e1; color: #f57f17; border: 4px solid #f57f17; }
         .status-resume { background-color: #e3f2fd; color: #1976d2; border: 4px solid #1976d2; }
         
         .note { font-size: 0.85rem; color: #777; margin-top: 25px; line-height: 1.5; }
@@ -69,15 +62,15 @@
                     
                     const statusBox = document.getElementById('display-status');
                     statusBox.style.display = 'block';
-                    statusBox.innerText = data.status;
+                    // HTMLの改行タグ（<br>）を解釈させるため innerHTML を使用
+                    statusBox.innerHTML = data.status;
                     
-                    // テキストの内容によって色を変える
-                    if (data.status === "待機") {
+                    // 色分けの判定
+                    if (data.status.includes("全員待機") || data.status === "待機") {
                         statusBox.className = "status-box status-wait";
                     } else if (data.status.includes("監督会議")) {
                         statusBox.className = "status-box status-meeting";
                     } else {
-                        // 「20分後競技開始」など
                         statusBox.className = "status-box status-resume";
                     }
 
