@@ -5,24 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>【本部用】緊急連絡更新</title>
     <style>
+        * { box-sizing: border-box; }
         body { font-family: sans-serif; background-color: #f0f0f0; padding: 20px; }
         .container { background: #fff; padding: 20px; border-radius: 8px; max-width: 400px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         h1 { font-size: 1.2rem; text-align: center; color: #333; }
         label { display: block; margin-top: 15px; font-weight: bold; }
-        input[type="text"], input[type="time"] { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; font-size: 1.1rem; border: 1px solid #ccc; border-radius: 4px; }
+        input[type="text"], input[type="time"] { width: 100%; padding: 10px; margin-top: 5px; font-size: 1.1rem; border: 1px solid #ccc; border-radius: 4px; }
         
-        /* スマホで押しやすいよう縦並びに変更 */
         .radio-group { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
         .radio-group label { padding: 15px; text-align: center; background: #eee; border-radius: 4px; margin-top: 0; cursor: pointer; border: 2px solid transparent; }
         .radio-group input { display: none; }
         .radio-group input:checked + span { font-weight: bold; }
         
-        /* 選択時の色分け */
-        .radio-group label:has(input[value="wait"]:checked) { border-color: #d32f2f; background: #ffebee; color: #d32f2f; }
+        .radio-group label:has(input[value="wait_all"]:checked) { border-color: #d32f2f; background: #ffebee; color: #d32f2f; }
         .radio-group label:has(input[value="meeting"]:checked) { border-color: #f57f17; background: #fff8e1; color: #f57f17; }
         .radio-group label:has(input[value="resume"]:checked) { border-color: #1976d2; background: #e3f2fd; color: #1976d2; }
 
-        /* 会議時刻入力エリア（初期は非表示） */
         #meetingTimeArea { display: none; margin-top: 10px; background: #fff8e1; padding: 15px; border-radius: 4px; border: 1px dashed #f57f17; }
 
         button { margin-top: 25px; width: 100%; padding: 15px; background: #1976d2; color: white; border: none; border-radius: 4px; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
@@ -42,9 +40,9 @@
         
         <label>状況を選択</label>
         <div class="radio-group">
-            <label><input type="radio" name="statusType" value="wait" checked> <span>待機</span></label>
-            <label><input type="radio" name="statusType" value="meeting"> <span>監督会議を行う</span></label>
-            <label><input type="radio" name="statusType" value="resume"> <span>20分後競技開始</span></label>
+            <label><input type="radio" name="statusType" value="wait_all" checked> <span>全員待機</span></label>
+            <label><input type="radio" name="statusType" value="meeting"> <span>待機 ＋ 監督会議</span></label>
+            <label><input type="radio" name="statusType" value="resume"> <span>20分後競技再開</span></label>
         </div>
 
         <div id="meetingTimeArea">
@@ -59,7 +57,6 @@
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycbx5gcEOsmqJJs-rD31RSwvyS7KzaYB1XAlduPqNnwN98BjzROqI3XPYNSHtCRTARpnJ/exec";
 
-        // 初期表示で現在の日付と時刻をセット
         window.onload = () => {
             const now = new Date();
             const days = ["日", "月", "火", "水", "木", "金", "土"];
@@ -67,10 +64,9 @@
             
             const currentTime = `${("0" + now.getHours()).slice(-2)}:${("0" + now.getMinutes()).slice(-2)}`;
             document.getElementById('timeText').value = currentTime;
-            document.getElementById('meetingTime').value = currentTime; // 会議時刻の初期値も現在時刻にする
+            document.getElementById('meetingTime').value = currentTime;
         };
 
-        // 「監督会議」が選ばれた時だけ時刻入力欄を表示
         document.querySelectorAll('input[name="statusType"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 const area = document.getElementById('meetingTimeArea');
@@ -85,17 +81,17 @@
             btn.innerText = "送信中...";
             msg.innerText = "";
 
-            // 選択された状況に応じて送信するテキストを作成
             const type = document.querySelector('input[name="statusType"]:checked').value;
             let finalStatusText = "";
 
-            if (type === "wait") {
-                finalStatusText = "待機";
+            if (type === "wait_all") {
+                finalStatusText = "全員待機";
             } else if (type === "meeting") {
                 const mTime = document.getElementById('meetingTime').value || "未定";
-                finalStatusText = `監督会議を${mTime}から行います`;
+                // 閲覧画面で「／」の代わりに綺麗に改行されるように <br> を使います
+                finalStatusText = `選手・保護者（観客）待機<br>${mTime}から監督会議を行います`;
             } else if (type === "resume") {
-                finalStatusText = "20分後競技開始";
+                finalStatusText = "20分後競技再開";
             }
 
             const data = {
