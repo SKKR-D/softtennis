@@ -1,225 +1,408 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【本部用】緊急連絡更新</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { font-family: sans-serif; background-color: #f0f0f0; padding: 20px; }
-        .container { background: #fff; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h1 { font-size: 1.2rem; text-align: center; color: #333; margin-bottom: 5px; }
-        
-        #sync-status { text-align: center; font-size: 0.9rem; color: #1976d2; font-weight: bold; margin-bottom: 15px; }
-        
-        label { display: block; margin-top: 15px; font-weight: bold; color: #333; }
-        .hint { font-size: 0.85rem; color: #666; margin-top: 4px; margin-bottom: 6px; }
-        
-        /* スマホでも確実に入力できるよう調整 */
-        input[type="text"], input[type="time"] { 
-            -webkit-appearance: none;
-            width: 100%; padding: 12px; margin-top: 5px; 
-            font-size: 1.1rem; border: 1px solid #ccc; border-radius: 4px; background-color: #fff;
-        }
-        input[type="text"]:focus, input[type="time"]:focus {
-            border-color: #1976d2; outline: none; box-shadow: 0 0 5px rgba(25,118,210,0.3);
-        }
-        
-        .radio-group { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-        .radio-group label { padding: 15px; text-align: center; background: #eee; border-radius: 4px; margin-top: 0; cursor: pointer; border: 2px solid transparent; font-weight: normal; }
-        .radio-group input { display: none; }
-        .radio-group input:checked + span { font-weight: bold; }
-        
-        /* 状態ごとの色設定（custom: 紫色 を追加） */
-        .radio-group label:has(input[value="custom"]:checked) { border-color: #8e24aa; background: #f3e5f5; color: #8e24aa; }
-        .radio-group label:has(input[value="wait_all"]:checked) { border-color: #d32f2f; background: #ffebee; color: #d32f2f; }
-        .radio-group label:has(input[value="meeting"]:checked) { border-color: #f57f17; background: #fff8e1; color: #f57f17; }
-        .radio-group label:has(input[value="resume"]:checked) { border-color: #1976d2; background: #e3f2fd; color: #1976d2; }
-        .radio-group label:has(input[value="playing"]:checked) { border-color: #2e7d32; background: #e8f5e9; color: #2e7d32; }
-        .radio-group label:has(input[value="finished"]:checked) { border-color: #616161; background: #f5f5f5; color: #616161; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【本部用】緊急連絡更新</title>
+    <style>
+        :root {
+            --primary-color: #1976d2;
+            --danger-color: #d32f2f;
+            --warning-color: #f57f17;
+            --success-color: #2e7d32;
+            --custom-color: #8e24aa;
+            --finished-color: #616161;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+        }
 
-        /* 入力エリアのスタイル */
-        #customTextArea { display: none; background: #f3e5f5; padding: 15px; border-radius: 4px; border: 1px dashed #8e24aa; }
-        #customTextArea input { margin-top: 0; border: 1px solid #ce93d8; }
-        #meetingTimeArea { display: none; margin-top: 10px; background: #fff8e1; padding: 15px; border-radius: 4px; border: 1px dashed #f57f17; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px 15px;
+        }
 
-        button.update-btn { margin-top: 25px; width: 100%; padding: 15px; background: #1976d2; color: white; border: none; border-radius: 4px; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
-        button.update-btn:disabled { background: #999; }
-        #msg { text-align: center; margin-top: 15px; font-weight: bold; }
-    </style>
+        .container { 
+            background: var(--card-bg); 
+            padding: 30px; 
+            border-radius: 12px; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08); 
+        }
+
+        h1 { 
+            font-size: 1.4rem; 
+            text-align: center; 
+            color: var(--primary-color); 
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        #sync-status { 
+            text-align: center; 
+            font-size: 0.9rem; 
+            color: var(--primary-color); 
+            font-weight: bold; 
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e3f2fd;
+            border-radius: 6px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        label.section-title { 
+            display: block; 
+            font-weight: bold; 
+            color: var(--text-color);
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .info-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            background: #e3f2fd;
+            padding: 10px 15px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        input[type="text"], input[type="time"] { 
+            -webkit-appearance: none;
+            width: 100%; 
+            padding: 12px 15px; 
+            font-size: 1.1rem; 
+            border: 1px solid #bdc3c7; 
+            border-radius: 6px; 
+            background-color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="time"]:focus {
+            border-color: var(--primary-color); 
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(25,118,210,0.2);
+        }
+        
+        .radio-group { 
+            display: grid; 
+            grid-template-columns: 1fr;
+            gap: 12px; 
+            margin-top: 15px; 
+        }
+
+        @media (min-width: 480px) {
+            .radio-group {
+                grid-template-columns: 1fr 1fr;
+            }
+            /* 直接入力と終了は横幅いっぱいにする */
+            .radio-group label:nth-child(1),
+            .radio-group label:nth-child(5) {
+                grid-column: 1 / -1;
+            }
+        }
+
+        .radio-group label { 
+            padding: 16px; 
+            text-align: center; 
+            background: #f8f9fa; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            border: 2px solid #dee2e6; 
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radio-group label:hover {
+            background: #e9ecef;
+        }
+
+        .radio-group input { display: none; }
+        
+        /* 選択時の状態ごとの色設定 */
+        .radio-group label:has(input[value="custom"]:checked) { 
+            border-color: var(--custom-color); background: #f3e5f5; color: var(--custom-color); font-weight: bold; box-shadow: 0 2px 8px rgba(142,36,170,0.2);
+        }
+        .radio-group label:has(input[value="wait_all"]:checked) { 
+            border-color: var(--danger-color); background: #ffebee; color: var(--danger-color); font-weight: bold; box-shadow: 0 2px 8px rgba(211,47,47,0.2);
+        }
+        .radio-group label:has(input[value="meeting"]:checked) { 
+            border-color: var(--warning-color); background: #fff8e1; color: var(--warning-color); font-weight: bold; box-shadow: 0 2px 8px rgba(245,127,23,0.2);
+        }
+        .radio-group label:has(input[value="resume"]:checked) { 
+            border-color: var(--primary-color); background: #e3f2fd; color: var(--primary-color); font-weight: bold; box-shadow: 0 2px 8px rgba(25,118,210,0.2);
+        }
+        .radio-group label:has(input[value="playing"]:checked) { 
+            border-color: var(--success-color); background: #e8f5e9; color: var(--success-color); font-weight: bold; box-shadow: 0 2px 8px rgba(46,125,50,0.2);
+        }
+        .radio-group label:has(input[value="finished"]:checked) { 
+            border-color: var(--finished-color); background: #f5f5f5; color: var(--finished-color); font-weight: bold; box-shadow: 0 2px 8px rgba(97,97,97,0.2);
+        }
+
+        /* 動的入力エリアのスタイル */
+        .dynamic-area {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #customTextArea { 
+            background: #f3e5f5; 
+            border: 2px dashed #ce93d8; 
+        }
+        
+        #meetingTimeArea { 
+            background: #fff8e1; 
+            border: 2px dashed #ffe082; 
+        }
+
+        .dynamic-area label {
+            font-size: 0.95rem;
+            color: #555;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        button.update-btn { 
+            margin-top: 30px; 
+            width: 100%; 
+            padding: 16px; 
+            background: var(--primary-color); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 1.2rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            box-shadow: 0 4px 12px rgba(25,118,210,0.3);
+            transition: all 0.2s ease;
+        }
+        
+        button.update-btn:hover:not(:disabled) {
+            background: #1565c0;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(25,118,210,0.4);
+        }
+
+        button.update-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button.update-btn:disabled { 
+            background: #b0bec5; 
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #msg { 
+            text-align: center; 
+            margin-top: 20px; 
+            font-weight: bold; 
+            font-size: 1.1rem;
+            min-height: 24px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>状況更新パネル</h1>
-        <div id="sync-status">現在のデータを読み込み中...</div>
-        
-        <label>日付</label>
-        <input type="text" id="dateText" placeholder="例: 7月19日（日）">
-        
-        <!-- 現在の時刻を自動取得し表示（編集不可） -->
-        <label>更新時刻（自動取得）</label>
-        <div id="displayCurrentTime" style="font-size: 1.2rem; font-weight: bold; margin-top: 5px; margin-bottom: 15px; color: #333;"></div>
-        <!-- 内部的に保持する時刻データ -->
-        <input type="hidden" id="timeText">
-        
-        <label>状況を選択</label>
-        <div class="radio-group">
-            <!-- 追加：直接入力項目 -->
-            <label><input type="radio" name="statusType" value="custom"> <span>直接入力（20文字以内）</span></label>
-            <div id="customTextArea">
-                <input type="text" id="customText" maxlength="20" placeholder="例：〇〇コートへ集合してください">
-            </div>
-            
-            <!-- 既存の項目 -->
-            <label><input type="radio" name="statusType" value="wait_all" checked> <span>全員待機</span></label>
-            <label><input type="radio" name="statusType" value="meeting"> <span>待機 ＋ 監督会議</span></label>
-            <label><input type="radio" name="statusType" value="resume"> <span>20分後競技再開</span></label>
-            <label><input type="radio" name="statusType" value="playing"> <span>競技中</span></label>
-            <label><input type="radio" name="statusType" value="finished"> <span>本日の競技はすべて終了しました</span></label>
-        </div>
+    <div class="container">
+        <h1>緊急連絡ボード 更新パネル</h1>
+        <div id="sync-status">現在のデータを読み込み中...</div>
+        
+        <div class="section">
+            <label class="section-title">基本情報</label>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="font-size: 0.9rem; color: #666; margin-bottom: 4px; display: block;">対象日</label>
+                    <input type="text" id="dateText" placeholder="例: 7月19日（日）">
+                </div>
+                <div>
+                    <label style="font-size: 0.9rem; color: #666; margin-bottom: 4px; display: block;">更新時刻（自動取得）</label>
+                    <div id="displayCurrentTime" class="info-display">--:--</div>
+                    <input type="hidden" id="timeText">
+                </div>
+            </div>
+        </div>
+        
+        <div class="section" style="background: transparent; border: none; padding: 0;">
+            <label class="section-title" style="font-size: 1.2rem; margin-bottom: 15px;">状況を選択してください</label>
+            <div class="radio-group">
+                <label><input type="radio" name="statusType" value="custom"> <span>直接入力（自由記述）</span></label>
+                <label><input type="radio" name="statusType" value="wait_all" checked> <span>全員待機</span></label>
+                <label><input type="radio" name="statusType" value="meeting"> <span>待機 ＋ 監督会議</span></label>
+                <label><input type="radio" name="statusType" value="resume"> <span>20分後競技再開</span></label>
+                <label><input type="radio" name="statusType" value="playing"> <span>競技中</span></label>
+                <label><input type="radio" name="statusType" value="finished"> <span>本日の競技は終了</span></label>
+            </div>
 
-        <div id="meetingTimeArea">
-            <label>監督会議の開始時刻を指定</label>
-            <input type="time" id="meetingTime">
-        </div>
+            <div id="customTextArea" class="dynamic-area">
+                <label>メッセージを入力（20文字以内）</label>
+                <input type="text" id="customText" maxlength="20" placeholder="例：〇〇コートへ集合してください">
+            </div>
 
-        <button id="updateBtn" class="update-btn" onclick="updateStatus()" disabled>読み込み中...</button>
-        <div id="msg"></div>
-    </div>
+            <div id="meetingTimeArea" class="dynamic-area">
+                <label>監督会議の開始時刻を指定</label>
+                <input type="time" id="meetingTime">
+            </div>
+        </div>
 
-    <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbx5gcEOsmqJJs-rD31RSwvyS7KzaYB1XAlduPqNnwN98BjzROqI3XPYNSHtCRTARpnJ/exec";
+        <button id="updateBtn" class="update-btn" onclick="updateStatus()" disabled>読み込み中...</button>
+        <div id="msg"></div>
+    </div>
 
-        window.onload = () => {
-            const now = new Date();
-            const days = ["日", "月", "火", "水", "木", "金", "土"];
-            document.getElementById('dateText').value = `${now.getMonth() + 1}月${now.getDate()}日（${days[now.getDay()]}）`;
-            
-            // 初期の時刻セット
-            updateCurrentTimeDisplay();
-            // 1秒ごとに時刻を更新
-            setInterval(updateCurrentTimeDisplay, 1000);
-            
-            document.getElementById('meetingTime').value = `${("0" + now.getHours()).slice(-2)}:${("0" + now.getMinutes()).slice(-2)}`;
+    <script>
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbx5gcEOsmqJJs-rD31RSwvyS7KzaYB1XAlduPqNnwN98BjzROqI3XPYNSHtCRTARpnJ/exec";
 
-            fetchCurrentData();
-        };
+        window.onload = () => {
+            const now = new Date();
+            const days = ["日", "月", "火", "水", "木", "金", "土"];
+            document.getElementById('dateText').value = `${now.getMonth() + 1}月${now.getDate()}日（${days[now.getDay()]}）`;
+            
+            updateCurrentTimeDisplay();
+            setInterval(updateCurrentTimeDisplay, 1000);
+            
+            document.getElementById('meetingTime').value = `${("0" + now.getHours()).slice(-2)}:${("0" + now.getMinutes()).slice(-2)}`;
 
-        function updateCurrentTimeDisplay() {
-            const now = new Date();
-            const currentTime = `${("0" + now.getHours()).slice(-2)}:${("0" + now.getMinutes()).slice(-2)}`;
-            document.getElementById('displayCurrentTime').innerText = currentTime;
-            document.getElementById('timeText').value = currentTime;
-        }
+            fetchCurrentData();
+        };
 
-        function fetchCurrentData() {
-            fetch(GAS_URL)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status) {
-                        // GASから受け取ったステータスが定型文と完全一致するかチェック
-                        if (data.status === "本日の競技はすべて終了しました") {
-                            document.querySelector('input[value="finished"]').checked = true;
-                        } else if (data.status === "全員待機" || data.status === "待機") {
-                            document.querySelector('input[value="wait_all"]').checked = true;
-                        } else if (data.status.includes("監督会議を行います")) {
-                            document.querySelector('input[value="meeting"]').checked = true;
-                            document.getElementById('meetingTimeArea').style.display = 'block';
-                            let timeMatch = data.status.match(/<br>(\d{2}:\d{2})から/);
-                            if (timeMatch) document.getElementById('meetingTime').value = timeMatch[1];
-                        } else if (data.status === "競技中") {
-                            document.querySelector('input[value="playing"]').checked = true;
-                        } else if (data.status === "20分後競技再開") {
-                            document.querySelector('input[value="resume"]').checked = true;
-                        } else {
-                            // どれにも当てはまらない場合は「直接入力」と判断する
-                            document.querySelector('input[value="custom"]').checked = true;
-                            document.getElementById('customTextArea').style.display = 'block';
-                            document.getElementById('customText').value = data.status.replace(/<[^>]*>?/gm, ''); // HTMLタグを除去
-                        }
-                    }
+        function updateCurrentTimeDisplay() {
+            const now = new Date();
+            const currentTime = `${("0" + now.getHours()).slice(-2)}:${("0" + now.getMinutes()).slice(-2)}`;
+            document.getElementById('displayCurrentTime').innerText = currentTime;
+            document.getElementById('timeText').value = currentTime;
+        }
 
-                    document.getElementById('sync-status').style.display = 'none';
-                    const btn = document.getElementById('updateBtn');
-                    btn.disabled = false;
-                    btn.innerText = "更新する";
-                })
-                .catch(err => {
-                    document.getElementById('sync-status').innerText = "データの読み込みに失敗しました。ページをリロードしてください。";
-                    document.getElementById('sync-status').style.color = "red";
-                });
-        }
+        function fetchCurrentData() {
+            fetch(GAS_URL)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        if (data.status === "本日の競技はすべて終了しました") {
+                            document.querySelector('input[value="finished"]').checked = true;
+                        } else if (data.status === "全員待機" || data.status === "待機") {
+                            document.querySelector('input[value="wait_all"]').checked = true;
+                        } else if (data.status.includes("監督会議を行います")) {
+                            document.querySelector('input[value="meeting"]').checked = true;
+                            document.getElementById('meetingTimeArea').style.display = 'block';
+                            let timeMatch = data.status.match(/<br>(\d{2}:\d{2})から/);
+                            if (timeMatch) document.getElementById('meetingTime').value = timeMatch[1];
+                        } else if (data.status === "競技中") {
+                            document.querySelector('input[value="playing"]').checked = true;
+                        } else if (data.status === "20分後競技再開") {
+                            document.querySelector('input[value="resume"]').checked = true;
+                        } else {
+                            document.querySelector('input[value="custom"]').checked = true;
+                            document.getElementById('customTextArea').style.display = 'block';
+                            document.getElementById('customText').value = data.status.replace(/<[^>]*>?/gm, '');
+                        }
+                    }
 
-        // ラジオボタンの切り替えで入力エリアの表示/非表示をコントロール
-        document.querySelectorAll('input[name="statusType"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                document.getElementById('meetingTimeArea').style.display = (e.target.value === 'meeting') ? 'block' : 'none';
-                document.getElementById('customTextArea').style.display = (e.target.value === 'custom') ? 'block' : 'none';
-            });
-        });
+                    document.getElementById('sync-status').style.display = 'none';
+                    const btn = document.getElementById('updateBtn');
+                    btn.disabled = false;
+                    btn.innerText = "更新内容を送信する";
+                })
+                .catch(err => {
+                    document.getElementById('sync-status').innerText = "データの読み込みに失敗しました。ページをリロードしてください。";
+                    document.getElementById('sync-status').style.color = "var(--danger-color)";
+                    document.getElementById('sync-status').style.backgroundColor = "#ffebee";
+                });
+        }
 
-        function updateStatus() {
-            const btn = document.getElementById('updateBtn');
-            const msg = document.getElementById('msg');
-            btn.disabled = true;
-            btn.innerText = "送信中...";
-            msg.innerText = "";
+        document.querySelectorAll('input[name="statusType"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                document.getElementById('meetingTimeArea').style.display = (e.target.value === 'meeting') ? 'block' : 'none';
+                document.getElementById('customTextArea').style.display = (e.target.value === 'custom') ? 'block' : 'none';
+            });
+        });
 
-            // 更新直前の時刻を確実に取得してセット
-            updateCurrentTimeDisplay();
+        function updateStatus() {
+            const btn = document.getElementById('updateBtn');
+            const msg = document.getElementById('msg');
+            btn.disabled = true;
+            btn.innerText = "送信中...";
+            msg.innerText = "";
 
-            const type = document.querySelector('input[name="statusType"]:checked').value;
-            let finalStatusText = "";
+            updateCurrentTimeDisplay();
 
-            // 選択された内容に応じて送信テキストを生成
-            if (type === "custom") {
-                finalStatusText = document.getElementById('customText').value.trim();
-                // 空欄チェック
-                if (!finalStatusText) {
-                    alert("直接入力の内容を入力してください。");
-                    btn.disabled = false;
-                    btn.innerText = "更新する";
-                    return;
-                }
-            } else if (type === "finished") {
-                finalStatusText = "本日の競技はすべて終了しました";
-            } else if (type === "wait_all") {
-                finalStatusText = "全員待機";
-            } else if (type === "meeting") {
-                const mTime = document.getElementById('meetingTime').value || "未定";
-                finalStatusText = `選手・保護者（観客）待機<br>${mTime}から監督会議を行います`;
-            } else if (type === "resume") {
-                finalStatusText = "20分後競技再開";
-            } else if (type === "playing") {
-                finalStatusText = "競技中";
-            }
+            const type = document.querySelector('input[name="statusType"]:checked').value;
+            let finalStatusText = "";
 
-            const data = {
-                dateText: document.getElementById('dateText').value,
-                timeText: document.getElementById('timeText').value, // ここで送信される
-                status: finalStatusText
-            };
+            if (type === "custom") {
+                finalStatusText = document.getElementById('customText').value.trim();
+                if (!finalStatusText) {
+                    alert("直接入力の内容を入力してください。");
+                    btn.disabled = false;
+                    btn.innerText = "更新内容を送信する";
+                    return;
+                }
+            } else if (type === "finished") {
+                finalStatusText = "本日の競技はすべて終了しました";
+            } else if (type === "wait_all") {
+                finalStatusText = "全員待機";
+            } else if (type === "meeting") {
+                const mTime = document.getElementById('meetingTime').value || "未定";
+                finalStatusText = `選手・保護者（観客）待機<br>${mTime}から監督会議を行います`;
+            } else if (type === "resume") {
+                finalStatusText = "20分後競技再開";
+            } else if (type === "playing") {
+                finalStatusText = "競技中";
+            }
 
-            fetch(GAS_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(res => {
-                msg.innerText = "更新が完了しました！";
-                msg.style.color = "green";
-                btn.disabled = false;
-                btn.innerText = "更新する";
-                setTimeout(() => msg.innerText = "", 3000);
-            })
-            .catch(err => {
-                msg.innerText = "エラーが発生しました";
-                msg.style.color = "red";
-                btn.disabled = false;
-                btn.innerText = "更新する";
-            });
-        }
-    </script>
+            const data = {
+                dateText: document.getElementById('dateText').value,
+                timeText: document.getElementById('timeText').value,
+                status: finalStatusText
+            };
+
+            fetch(GAS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(res => {
+                msg.innerText = "更新が完了しました！";
+                msg.style.color = "var(--success-color)";
+                btn.disabled = false;
+                btn.innerText = "更新内容を送信する";
+                setTimeout(() => msg.innerText = "", 3000);
+            })
+            .catch(err => {
+                msg.innerText = "エラーが発生しました";
+                msg.style.color = "var(--danger-color)";
+                btn.disabled = false;
+                btn.innerText = "更新内容を送信する";
+            });
+        }
+    </script>
 </body>
 </html>
