@@ -13,9 +13,7 @@
         #sync-status { text-align: center; font-size: 0.9rem; color: #1976d2; font-weight: bold; margin-bottom: 15px; }
         
         label { display: block; margin-top: 15px; font-weight: bold; color: #333; }
-        .hint { font-size: 0.85rem; color: #666; margin-top: 4px; margin-bottom: 6px; }
         
-        /* スマホでも確実に入力できるよう調整 */
         input[type="text"], input[type="time"] { 
             -webkit-appearance: none;
             width: 100%; padding: 12px; margin-top: 5px; 
@@ -30,13 +28,16 @@
         .radio-group input { display: none; }
         .radio-group input:checked + span { font-weight: bold; }
         
-        /* 状態ごとの色設定 */
+        /* 状態ごとの色設定（custom: 紫色 を追加） */
+        .radio-group label:has(input[value="custom"]:checked) { border-color: #8e24aa; background: #f3e5f5; color: #8e24aa; }
         .radio-group label:has(input[value="wait_all"]:checked) { border-color: #d32f2f; background: #ffebee; color: #d32f2f; }
         .radio-group label:has(input[value="meeting"]:checked) { border-color: #f57f17; background: #fff8e1; color: #f57f17; }
         .radio-group label:has(input[value="resume"]:checked) { border-color: #1976d2; background: #e3f2fd; color: #1976d2; }
         .radio-group label:has(input[value="playing"]:checked) { border-color: #2e7d32; background: #e8f5e9; color: #2e7d32; }
         .radio-group label:has(input[value="finished"]:checked) { border-color: #616161; background: #f5f5f5; color: #616161; }
 
+        /* 入力エリアのスタイル */
+        #customTextArea { display: none; margin-top: 10px; background: #f3e5f5; padding: 15px; border-radius: 4px; border: 1px dashed #8e24aa; }
         #meetingTimeArea { display: none; margin-top: 10px; background: #fff8e1; padding: 15px; border-radius: 4px; border: 1px dashed #f57f17; }
 
         button.update-btn { margin-top: 25px; width: 100%; padding: 15px; background: #1976d2; color: white; border: none; border-radius: 4px; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
@@ -55,14 +56,9 @@
         <label>現在の時刻</label>
         <input type="time" id="timeText">
         
-        <!-- ▼ ここから追加メッセージ欄 ▼ -->
-        <label>追加メッセージ（20文字以内・任意）</label>
-        <div class="hint">※選んだ状況の下に表示されます。空欄でも構いません。</div>
-        <input type="text" id="customText" maxlength="20" placeholder="例：雷雲接近のため">
-        <!-- ▲ ここまで ▲ -->
-
         <label style="margin-top:25px;">状況を選択</label>
         <div class="radio-group">
+            <label><input type="radio" name="statusType" value="custom"> <span>直接入力（20文字以内）</span></label>
             <label><input type="radio" name="statusType" value="wait_all" checked> <span>全員待機</span></label>
             <label><input type="radio" name="statusType" value="meeting"> <span>待機 ＋ 監督会議</span></label>
             <label><input type="radio" name="statusType" value="resume"> <span>20分後競技再開</span></label>
@@ -70,8 +66,13 @@
             <label><input type="radio" name="statusType" value="finished"> <span>本日の競技はすべて終了しました</span></label>
         </div>
 
+        <div id="customTextArea">
+            <label style="margin-top: 0;">メッセージを入力してください</label>
+            <input type="text" id="customText" maxlength="20" placeholder="例：〇〇コートへ集合してください">
+        </div>
+
         <div id="meetingTimeArea">
-            <label>監督会議の開始時刻を指定</label>
+            <label style="margin-top: 0;">監督会議の開始時刻を指定</label>
             <input type="time" id="meetingTime">
         </div>
 
@@ -98,27 +99,24 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status) {
-                        // 受信したデータを「基本の状況」と「追加メッセージ」に分ける処理
-                        let parts = data.status.split("<div class='sub-msg'>");
-                        let mainStatus = parts[0];
-                        let customMsg = parts.length > 1 ? parts[1].replace("</div>", "") : "";
-                        
-                        document.getElementById('customText').value = customMsg;
-
-                        if (mainStatus.includes("終了しました")) {
+                        if (data.status === "本日の競技はすべて終了しました") {
                             document.querySelector('input[value="finished"]').checked = true;
-                        } else if (mainStatus.includes("全員待機") || mainStatus === "待機") {
+                        } else if (data.status === "全員待機" || data.status === "待機") {
                             document.querySelector('input[value="wait_all"]').checked = true;
-                        } else if (mainStatus.includes("監督会議")) {
+                        } else if (data.status.includes("監督会議を行います")) {
                             document.querySelector('input[value="meeting"]').checked = true;
                             document.getElementById('meetingTimeArea').style.display = 'block';
-                            // 会議時刻を抽出
-                            let timeMatch = mainStatus.match(/<br>(\d{2}:\d{2})から/);
+                            let timeMatch = data.status.match(/<br>(\d{2}:\d{2})から/);
                             if (timeMatch) document.getElementById('meetingTime').value = timeMatch[1];
-                        } else if (mainStatus.includes("競技中")) {
+                        } else if (data.status === "競技中") {
                             document.querySelector('input[value="playing"]').checked = true;
-                        } else {
+                        } else if (data.status === "20分後競技再開") {
                             document.querySelector('input[value="resume"]').checked = true;
+                        } else {
+                            // どれにも当てはまらない場合は直接入力として処理
+                            document.querySelector('input[value="custom"]').checked = true;
+                            document.getElementById('customTextArea').style.display = 'block';
+                            document.getElementById('customText').value = data.status.replace(/<[^>]*>?/gm, ''); // HTMLタグを除去
                         }
                     }
 
@@ -136,6 +134,7 @@
         document.querySelectorAll('input[name="statusType"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 document.getElementById('meetingTimeArea').style.display = (e.target.value === 'meeting') ? 'block' : 'none';
+                document.getElementById('customTextArea').style.display = (e.target.value === 'custom') ? 'block' : 'none';
             });
         });
 
@@ -147,27 +146,27 @@
             msg.innerText = "";
 
             const type = document.querySelector('input[name="statusType"]:checked').value;
-            const customMsg = document.getElementById('customText').value.trim();
-            let mainStatusText = "";
+            let finalStatusText = "";
 
-            // ラジオボタンの状況
-            if (type === "finished") {
-                mainStatusText = "本日の競技はすべて終了しました";
+            if (type === "custom") {
+                finalStatusText = document.getElementById('customText').value.trim();
+                if (!finalStatusText) {
+                    alert("直接入力の内容を入力してください。");
+                    btn.disabled = false;
+                    btn.innerText = "更新する";
+                    return;
+                }
+            } else if (type === "finished") {
+                finalStatusText = "本日の競技はすべて終了しました";
             } else if (type === "wait_all") {
-                mainStatusText = "全員待機";
+                finalStatusText = "全員待機";
             } else if (type === "meeting") {
                 const mTime = document.getElementById('meetingTime').value || "未定";
-                mainStatusText = `選手・保護者（観客）待機<br>${mTime}から監督会議を行います`;
+                finalStatusText = `選手・保護者（観客）待機<br>${mTime}から監督会議を行います`;
             } else if (type === "resume") {
-                mainStatusText = "20分後競技再開";
+                finalStatusText = "20分後競技再開";
             } else if (type === "playing") {
-                mainStatusText = "競技中";
-            }
-
-            // メッセージが入力されている場合は合体させる
-            let finalStatusText = mainStatusText;
-            if (customMsg !== "") {
-                finalStatusText += `<div class='sub-msg'>${customMsg}</div>`;
+                finalStatusText = "競技中";
             }
 
             const data = {
