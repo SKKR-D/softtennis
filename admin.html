@@ -112,7 +112,6 @@
             .radio-group {
                 grid-template-columns: 1fr 1fr;
             }
-            /* 直接入力と終了は横幅いっぱいにする */
             .radio-group label:nth-child(1),
             .radio-group label:nth-child(5) {
                 grid-column: 1 / -1;
@@ -139,7 +138,6 @@
 
         .radio-group input { display: none; }
         
-        /* 選択時の状態ごとの色設定 */
         .radio-group label:has(input[value="custom"]:checked) { 
             border-color: var(--custom-color); background: #f3e5f5; color: var(--custom-color); font-weight: bold; box-shadow: 0 2px 8px rgba(142,36,170,0.2);
         }
@@ -159,7 +157,6 @@
             border-color: var(--finished-color); background: #f5f5f5; color: var(--finished-color); font-weight: bold; box-shadow: 0 2px 8px rgba(97,97,97,0.2);
         }
 
-        /* 動的入力エリアのスタイル */
         .dynamic-area {
             display: none;
             margin-top: 15px;
@@ -173,15 +170,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        #customTextArea { 
-            background: #f3e5f5; 
-            border: 2px dashed #ce93d8; 
-        }
-        
-        #meetingTimeArea { 
-            background: #fff8e1; 
-            border: 2px dashed #ffe082; 
-        }
+        #customTextArea { background: #f3e5f5; border: 2px dashed #ce93d8; }
+        #meetingTimeArea { background: #fff8e1; border: 2px dashed #ffe082; }
+        #resumeTimeArea { background: #e3f2fd; border: 2px dashed #90caf9; } /* 競技再開エリアを追加 */
 
         .dynamic-area label {
             font-size: 0.95rem;
@@ -257,7 +248,7 @@
                 <label><input type="radio" name="statusType" value="custom"> <span>直接入力（自由記述）</span></label>
                 <label><input type="radio" name="statusType" value="wait_all" checked> <span>全員待機</span></label>
                 <label><input type="radio" name="statusType" value="meeting"> <span>待機 ＋ 監督会議</span></label>
-                <label><input type="radio" name="statusType" value="resume"> <span>20分後競技再開</span></label>
+                <label><input type="radio" name="statusType" value="resume"> <span>時間指定で競技再開</span></label>
                 <label><input type="radio" name="statusType" value="playing"> <span>競技中</span></label>
                 <label><input type="radio" name="statusType" value="finished"> <span>本日の競技は終了</span></label>
             </div>
@@ -270,6 +261,11 @@
             <div id="meetingTimeArea" class="dynamic-area">
                 <label>監督会議の開始時刻を指定</label>
                 <input type="time" id="meetingTime">
+            </div>
+
+            <div id="resumeTimeArea" class="dynamic-area">
+                <label>競技再開の時刻を指定</label>
+                <input type="time" id="resumeTime">
             </div>
         </div>
 
@@ -288,7 +284,9 @@
             updateCurrentTimeDisplay();
             setInterval(updateCurrentTimeDisplay, 1000);
             
-            document.getElementById('meetingTime').value = `${("0" + now.getHours()).slice(-2)}:${("0" + now.getMinutes()).slice(-2)}`;
+            const timeString = `${("0" + now.getHours()).slice(-2)}:${("0" + now.getMinutes()).slice(-2)}`;
+            document.getElementById('meetingTime').value = timeString;
+            document.getElementById('resumeTime').value = timeString;
 
             fetchCurrentData();
         };
@@ -316,8 +314,11 @@
                             if (timeMatch) document.getElementById('meetingTime').value = timeMatch[1];
                         } else if (data.status === "競技中") {
                             document.querySelector('input[value="playing"]').checked = true;
-                        } else if (data.status === "20分後競技再開") {
+                        } else if (data.status.includes("競技再開")) {
                             document.querySelector('input[value="resume"]').checked = true;
+                            document.getElementById('resumeTimeArea').style.display = 'block';
+                            let timeMatch = data.status.match(/(\d{2}:\d{2})/);
+                            if (timeMatch) document.getElementById('resumeTime').value = timeMatch[1];
                         } else {
                             document.querySelector('input[value="custom"]').checked = true;
                             document.getElementById('customTextArea').style.display = 'block';
@@ -341,6 +342,7 @@
             radio.addEventListener('change', (e) => {
                 document.getElementById('meetingTimeArea').style.display = (e.target.value === 'meeting') ? 'block' : 'none';
                 document.getElementById('customTextArea').style.display = (e.target.value === 'custom') ? 'block' : 'none';
+                document.getElementById('resumeTimeArea').style.display = (e.target.value === 'resume') ? 'block' : 'none';
             });
         });
 
@@ -372,7 +374,8 @@
                 const mTime = document.getElementById('meetingTime').value || "未定";
                 finalStatusText = `選手・保護者（観客）待機<br>${mTime}から監督会議を行います`;
             } else if (type === "resume") {
-                finalStatusText = "20分後競技再開";
+                const rTime = document.getElementById('resumeTime').value || "未定";
+                finalStatusText = `${rTime} 競技再開`;
             } else if (type === "playing") {
                 finalStatusText = "競技中";
             }
