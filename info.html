@@ -49,7 +49,7 @@
 
         <div class="note">
             ※このページは1分ごとに自動更新されます。<br>
-            最終確認: <span id="last-sync">--:--</span>
+            本部からの最終更新: <span id="last-sync">--:--</span>
         </div>
     </div>
 
@@ -60,7 +60,12 @@
             fetch(GAS_URL)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('display-datetime').innerHTML = `${data.dateText}<br>${data.timeText} 現在`;
+                    // スマホ側が1分ごとに取得した「現在の時刻」を計算
+                    const now = new Date();
+                    const fetchTime = `${("0"+now.getHours()).slice(-2)}:${("0"+now.getMinutes()).slice(-2)}`;
+                    
+                    // 上部の大きな文字には、このページが自動更新を行った「現在の時刻」を表示
+                    document.getElementById('display-datetime').innerHTML = `${data.dateText}<br>${fetchTime} 現在`;
                     
                     const statusBox = document.getElementById('display-status');
                     statusBox.style.display = 'block';
@@ -75,14 +80,13 @@
                     } else if (data.status.includes("競技中")) {
                         statusBox.className = "status-box status-playing";
                     } else if (data.status.includes("競技再開")) {
-                        // 新しいフォーマット「〇:〇 競技再開」に青色を適用
                         statusBox.className = "status-box status-resume";
                     } else {
                         statusBox.className = "status-box status-custom";
                     }
 
-                    const now = new Date();
-                    document.getElementById('last-sync').innerText = `${("0"+now.getHours()).slice(-2)}:${("0"+now.getMinutes()).slice(-2)}`;
+                    // 下部の小さな文字には、管理者が「更新する」ボタンを押した時刻を表示
+                    document.getElementById('last-sync').innerText = data.timeText;
                 })
                 .catch(err => {
                     console.error("データ取得エラー", err);
