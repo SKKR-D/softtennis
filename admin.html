@@ -20,13 +20,17 @@
         .radio-group input { display: none; }
         .radio-group input:checked + span { font-weight: bold; }
         
-        /* 5つの状態ごとの色設定 */
+        /* 状態ごとの色設定（custom: 紫色 を追加） */
+        .radio-group label:has(input[value="custom"]:checked) { border-color: #8e24aa; background: #f3e5f5; color: #8e24aa; }
         .radio-group label:has(input[value="wait_all"]:checked) { border-color: #d32f2f; background: #ffebee; color: #d32f2f; }
         .radio-group label:has(input[value="meeting"]:checked) { border-color: #f57f17; background: #fff8e1; color: #f57f17; }
         .radio-group label:has(input[value="resume"]:checked) { border-color: #1976d2; background: #e3f2fd; color: #1976d2; }
         .radio-group label:has(input[value="playing"]:checked) { border-color: #2e7d32; background: #e8f5e9; color: #2e7d32; }
         .radio-group label:has(input[value="finished"]:checked) { border-color: #616161; background: #f5f5f5; color: #616161; }
 
+        /* 入力エリアのスタイル */
+        #customTextArea { display: none; background: #f3e5f5; padding: 15px; border-radius: 4px; border: 1px dashed #8e24aa; }
+        #customTextArea input { margin-top: 0; border: 1px solid #ce93d8; }
         #meetingTimeArea { display: none; margin-top: 10px; background: #fff8e1; padding: 15px; border-radius: 4px; border: 1px dashed #f57f17; }
 
         button.update-btn { margin-top: 25px; width: 100%; padding: 15px; background: #1976d2; color: white; border: none; border-radius: 4px; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
@@ -47,6 +51,13 @@
         
         <label>状況を選択</label>
         <div class="radio-group">
+            <!-- 追加：直接入力項目 -->
+            <label><input type="radio" name="statusType" value="custom"> <span>直接入力（20文字以内）</span></label>
+            <div id="customTextArea">
+                <input type="text" id="customText" maxlength="20" placeholder="例：〇〇コートへ集合してください">
+            </div>
+            
+            <!-- 既存の項目 -->
             <label><input type="radio" name="statusType" value="wait_all" checked> <span>全員待機</span></label>
             <label><input type="radio" name="statusType" value="meeting"> <span>待機 ＋ 監督会議</span></label>
             <label><input type="radio" name="statusType" value="resume"> <span>20分後競技再開</span></label>
@@ -82,17 +93,23 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status) {
-                        if (data.status.includes("終了しました")) {
+                        // GASから受け取ったステータスが定型文と完全一致するかチェック
+                        if (data.status === "本日の競技はすべて終了しました") {
                             document.querySelector('input[value="finished"]').checked = true;
-                        } else if (data.status.includes("全員待機") || data.status === "待機") {
+                        } else if (data.status === "全員待機" || data.status === "待機") {
                             document.querySelector('input[value="wait_all"]').checked = true;
-                        } else if (data.status.includes("監督会議")) {
+                        } else if (data.status.includes("監督会議を行います")) {
                             document.querySelector('input[value="meeting"]').checked = true;
                             document.getElementById('meetingTimeArea').style.display = 'block';
-                        } else if (data.status.includes("競技中")) {
+                        } else if (data.status === "競技中") {
                             document.querySelector('input[value="playing"]').checked = true;
-                        } else {
+                        } else if (data.status === "20分後競技再開") {
                             document.querySelector('input[value="resume"]').checked = true;
+                        } else {
+                            // どれにも当てはまらない場合は「直接入力」と判断する
+                            document.querySelector('input[value="custom"]').checked = true;
+                            document.getElementById('customTextArea').style.display = 'block';
+                            document.getElementById('customText').value = data.status;
                         }
                     }
 
@@ -107,10 +124,11 @@
                 });
         }
 
+        // ラジオボタンの切り替えで入力エリアの表示/非表示をコントロール
         document.querySelectorAll('input[name="statusType"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
-                const area = document.getElementById('meetingTimeArea');
-                area.style.display = (e.target.value === 'meeting') ? 'block' : 'none';
+                document.getElementById('meetingTimeArea').style.display = (e.target.value === 'meeting') ? 'block' : 'none';
+                document.getElementById('customTextArea').style.display = (e.target.value === 'custom') ? 'block' : 'none';
             });
         });
 
@@ -124,7 +142,17 @@
             const type = document.querySelector('input[name="statusType"]:checked').value;
             let finalStatusText = "";
 
-            if (type === "finished") {
+            // 選択された内容に応じて送信テキストを生成
+            if (type === "custom") {
+                finalStatusText = document.getElementById('customText').value.trim();
+                // 空欄チェック
+                if (!finalStatusText) {
+                    alert("直接入力の内容を入力してください。");
+                    btn.disabled = false;
+                    btn.innerText = "更新する";
+                    return;
+                }
+            } else if (type === "finished") {
                 finalStatusText = "本日の競技はすべて終了しました";
             } else if (type === "wait_all") {
                 finalStatusText = "全員待機";
