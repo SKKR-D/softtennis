@@ -23,22 +23,12 @@
             overflow-wrap: break-word; 
         }
 
-        /* 自由入力されたメッセージ用のスタイル（点線で区切って少し小さく表示） */
-        .sub-msg {
-            display: block;
-            font-size: 1.1rem;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px dashed currentColor;
-            font-weight: normal;
-        }
-        
-        /* 5種類の色分け設定 */
+        .status-custom { background-color: #f3e5f5; color: #8e24aa; border: 4px solid #8e24aa; } 
         .status-wait { background-color: #ffebee; color: #d32f2f; border: 4px solid #d32f2f; }
         .status-meeting { background-color: #fff8e1; color: #f57f17; border: 4px solid #f57f17; }
         .status-resume { background-color: #e3f2fd; color: #1976d2; border: 4px solid #1976d2; }
         .status-playing { background-color: #e8f5e9; color: #2e7d32; border: 4px solid #2e7d32; }
-        .status-finished { background-color: #f5f5f5; color: #616161; border: 4px solid #616161; }
+        .status-finished { background-color: #f5f5f5; color: #616161; border: 4px solid #616161; } 
 
         .note { font-size: 0.85rem; color: #777; margin-top: 25px; line-height: 1.5; }
         .loading { font-size: 1rem; color: #999; }
@@ -76,7 +66,6 @@
                     statusBox.style.display = 'block';
                     statusBox.innerHTML = data.status;
                     
-                    // .includes() で判定しているため、追加メッセージが含まれていても正しく色分けされます
                     if (data.status.includes("終了しました")) {
                         statusBox.className = "status-box status-finished";
                     } else if (data.status.includes("全員待機") || data.status === "待機") {
@@ -85,8 +74,11 @@
                         statusBox.className = "status-box status-meeting";
                     } else if (data.status.includes("競技中")) {
                         statusBox.className = "status-box status-playing";
-                    } else {
+                    } else if (data.status.includes("競技再開")) {
+                        // 新しいフォーマット「〇:〇 競技再開」に青色を適用
                         statusBox.className = "status-box status-resume";
+                    } else {
+                        statusBox.className = "status-box status-custom";
                     }
 
                     const now = new Date();
