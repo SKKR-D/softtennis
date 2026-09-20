@@ -9,6 +9,26 @@
         body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background-color: #fff; width: 100%; max-width: 600px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 30px 20px; text-align: center; }
         .header-title { font-size: 1.1rem; font-weight: bold; color: #555; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        
+        /* リンクボタンのスタイル */
+        .pdf-link-btn {
+            display: inline-block;
+            background-color: #1976d2;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background-color 0.2s, transform 0.1s;
+            width: 90%;
+            max-width: 400px;
+        }
+        .pdf-link-btn:hover { background-color: #1565c0; }
+        .pdf-link-btn:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
         .datetime { font-size: 1.6rem; font-weight: bold; margin-bottom: 25px; color: #222; }
         
         .status-box { 
@@ -29,6 +49,8 @@
         .status-resume { background-color: #e3f2fd; color: #1976d2; border: 4px solid #1976d2; }
         .status-playing { background-color: #e8f5e9; color: #2e7d32; border: 4px solid #2e7d32; }
         .status-finished { background-color: #f5f5f5; color: #616161; border: 4px solid #616161; } 
+        
+        .sub-msg { display: block; font-size: 1.1rem; margin-top: 15px; padding-top: 15px; border-top: 1px dashed currentColor; font-weight: normal; }
 
         .note { font-size: 0.85rem; color: #777; margin-top: 25px; line-height: 1.5; }
         .loading { font-size: 1rem; color: #999; }
@@ -38,6 +60,11 @@
 
     <div class="container">
         <div class="header-title">盛岡市新人大会ソフトテニス競技<br>緊急連絡ボード</div>
+        
+        <!-- 追加：Googleドライブへのリンクボタン -->
+        <a href="https://drive.google.com/drive/folders/1UUrF1BNEGaco6vVstYdiXNsHc2mhQOBI?usp=sharing" target="_blank" rel="noopener noreferrer" class="pdf-link-btn">
+            📋 本日の組み合わせ・進行表はこちら
+        </a>
 
         <div class="datetime" id="display-datetime">
             <span class="loading">最新情報を取得中...</span>
